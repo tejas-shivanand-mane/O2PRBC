@@ -1,0 +1,370 @@
+2024-10-15 00:11:49.529423 [net info] loaded configuration from hotstuff.conf
+2024-10-15 00:11:49.529481 [net info] loading extra configuration from ./hotstuff-sec0.conf
+2024-10-15 00:11:49.533944 [net info] starting all threads...
+2024-10-15 00:11:49.534236 [net info] listening to 10000
+2024-10-15 00:11:49.551343 [net info] starting all threads...
+2024-10-15 00:11:49.551662 [net info] listening to 20000
+2024-10-15 00:11:49.551732 [hotstuff info] ** starting the system with parameters **
+2024-10-15 00:11:49.551738 [hotstuff info] blk_size = 1
+2024-10-15 00:11:49.551741 [hotstuff info] conns = 0
+2024-10-15 00:11:49.551743 [hotstuff info] ** starting the event loop...
+2024-10-15 00:11:49.551779 [hotstuff proto] Pacemaker: stop rotation at 0
+2024-10-15 00:11:49.552235 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:11:49.552414 [net info] created <Conn fd=113 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:11:49.552569 [net info] created <Conn fd=115 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:49.552673 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:11:49.552693 [net info] 542865a568: lost connection <Conn fd=113 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:11:49.552704 [net info] 542865a568: lost connection <Conn fd=115 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:49.552780 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:49.552795 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:49.552799 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:51.753582 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:51.754052 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:51.754263 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:52.351305 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:11:52.351460 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:11:52.351569 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:52.464026 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:11:52.464235 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:11:52.464275 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:54.524398 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:54.524917 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:54.525098 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:54.906388 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:11:54.906937 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:11:54.907097 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:55.093618 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:11:55.094193 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:11:55.094354 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:57.040275 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:57.040807 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:57.040979 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:57.812704 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:11:57.813356 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:11:57.813499 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:57.823353 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:11:57.823837 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:11:57.824025 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:11:59.531098 [hotstuff info] ===== begin stats =====
+2024-10-15 00:11:59.531311 [hotstuff info] -------- queues -------
+2024-10-15 00:11:59.531336 [hotstuff info] blk_fetch_waiting: 0
+2024-10-15 00:11:59.531352 [hotstuff info] blk_delivery_waiting: 0
+2024-10-15 00:11:59.531368 [hotstuff info] decision_waiting: 0
+2024-10-15 00:11:59.531383 [hotstuff info] -------- misc ---------
+2024-10-15 00:11:59.531400 [hotstuff info] fetched: 0
+2024-10-15 00:11:59.531417 [hotstuff info] delivered: 0
+2024-10-15 00:11:59.531433 [hotstuff info] cmd_cache: 0
+2024-10-15 00:11:59.531448 [hotstuff info] blk_cache: 1
+2024-10-15 00:11:59.531463 [hotstuff info] ------ misc (10s) -----
+2024-10-15 00:11:59.531481 [hotstuff info] fetched: 0
+2024-10-15 00:11:59.531497 [hotstuff info] delivered: 0
+2024-10-15 00:11:59.531512 [hotstuff info] decided: 0
+2024-10-15 00:11:59.531527 [hotstuff info] gened: 0
+2024-10-15 00:11:59.531543 [hotstuff info] avg. parent_size: 0.000
+2024-10-15 00:11:59.531565 [hotstuff info] delivery time: 0.000 avg, 0.000 min, 0.000 max
+2024-10-15 00:11:59.531583 [hotstuff info] --- replica msg. (10s) ---
+2024-10-15 00:11:59.531885 [hotstuff info] c261250345: 0(0), 0(0), 0
+2024-10-15 00:11:59.532263 [hotstuff info] 065b010aed: 0(0), 0(0), 0
+2024-10-15 00:11:59.532682 [hotstuff info] 6540a0fea6: 0(0), 0(0), 0
+2024-10-15 00:11:59.532767 [hotstuff info] sent: 0
+2024-10-15 00:11:59.532787 [hotstuff info] recv: 0
+2024-10-15 00:11:59.532802 [hotstuff info] --- replica msg. total ---
+2024-10-15 00:11:59.532817 [hotstuff info] sent: 0
+2024-10-15 00:11:59.532833 [hotstuff info] recv: 0
+2024-10-15 00:11:59.532848 [hotstuff info] ====== end stats ======
+2024-10-15 00:11:59.532863 [hotstuff info] --- client msg. (10s) ---
+2024-10-15 00:11:59.532878 [hotstuff info] --- end client msg. ---
+2024-10-15 00:11:59.647667 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:59.648246 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:11:59.648366 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:00.056478 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:00.056837 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:00.057001 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:00.629251 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:00.629645 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:00.629826 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:02.050622 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:02.050856 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:02.050900 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:02.165940 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:02.166561 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:02.166716 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:02.849379 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:02.849950 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:02.850186 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:04.465181 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:04.465465 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:04.465532 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:04.890438 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:04.890686 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:04.890754 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:05.374467 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:05.374658 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:05.374708 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:07.439310 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:07.439449 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:07.439539 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:07.662102 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:07.662301 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:07.662399 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:08.144149 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:08.144376 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:08.144474 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:09.532224 [hotstuff info] ===== begin stats =====
+2024-10-15 00:12:09.532386 [hotstuff info] -------- queues -------
+2024-10-15 00:12:09.532418 [hotstuff info] blk_fetch_waiting: 0
+2024-10-15 00:12:09.532443 [hotstuff info] blk_delivery_waiting: 0
+2024-10-15 00:12:09.532466 [hotstuff info] decision_waiting: 0
+2024-10-15 00:12:09.532490 [hotstuff info] -------- misc ---------
+2024-10-15 00:12:09.532513 [hotstuff info] fetched: 0
+2024-10-15 00:12:09.532536 [hotstuff info] delivered: 0
+2024-10-15 00:12:09.532560 [hotstuff info] cmd_cache: 0
+2024-10-15 00:12:09.532584 [hotstuff info] blk_cache: 1
+2024-10-15 00:12:09.532608 [hotstuff info] ------ misc (10s) -----
+2024-10-15 00:12:09.532639 [hotstuff info] fetched: 0
+2024-10-15 00:12:09.532667 [hotstuff info] delivered: 0
+2024-10-15 00:12:09.532693 [hotstuff info] decided: 0
+2024-10-15 00:12:09.532719 [hotstuff info] gened: 0
+2024-10-15 00:12:09.532746 [hotstuff info] avg. parent_size: 0.000
+2024-10-15 00:12:09.532779 [hotstuff info] delivery time: 0.000 avg, 0.000 min, 0.000 max
+2024-10-15 00:12:09.532809 [hotstuff info] --- replica msg. (10s) ---
+2024-10-15 00:12:09.533037 [hotstuff info] c261250345: 0(0), 0(0), 0
+2024-10-15 00:12:09.533415 [hotstuff info] 065b010aed: 0(0), 0(0), 0
+2024-10-15 00:12:09.533894 [hotstuff info] 6540a0fea6: 0(0), 0(0), 0
+2024-10-15 00:12:09.534053 [hotstuff info] sent: 0
+2024-10-15 00:12:09.534089 [hotstuff info] recv: 0
+2024-10-15 00:12:09.534154 [hotstuff info] --- replica msg. total ---
+2024-10-15 00:12:09.534188 [hotstuff info] sent: 0
+2024-10-15 00:12:09.534215 [hotstuff info] recv: 0
+2024-10-15 00:12:09.534240 [hotstuff info] ====== end stats ======
+2024-10-15 00:12:09.534266 [hotstuff info] --- client msg. (10s) ---
+2024-10-15 00:12:09.534293 [hotstuff info] --- end client msg. ---
+2024-10-15 00:12:10.016109 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:10.016660 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:10.016815 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:10.331518 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:10.331678 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:10.331773 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:11.064303 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:11.064429 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:11.064515 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:12.418596 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:12.419104 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:12.419318 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:12.966815 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:12.967419 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:12.967616 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:13.728832 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:13.728953 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:13.729030 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:14.768757 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:14.769318 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:14.769502 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:14.988656 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:14.989229 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:14.989424 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:15.791616 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:15.791914 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:15.792033 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:17.742372 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:17.742676 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:17.742808 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:17.841227 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:17.841447 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:17.841479 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:18.331693 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:18.331997 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:18.332057 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:19.533162 [hotstuff info] ===== begin stats =====
+2024-10-15 00:12:19.533262 [hotstuff info] -------- queues -------
+2024-10-15 00:12:19.533278 [hotstuff info] blk_fetch_waiting: 0
+2024-10-15 00:12:19.533308 [hotstuff info] blk_delivery_waiting: 0
+2024-10-15 00:12:19.533315 [hotstuff info] decision_waiting: 0
+2024-10-15 00:12:19.533322 [hotstuff info] -------- misc ---------
+2024-10-15 00:12:19.533329 [hotstuff info] fetched: 0
+2024-10-15 00:12:19.533337 [hotstuff info] delivered: 0
+2024-10-15 00:12:19.533344 [hotstuff info] cmd_cache: 0
+2024-10-15 00:12:19.533351 [hotstuff info] blk_cache: 1
+2024-10-15 00:12:19.533358 [hotstuff info] ------ misc (10s) -----
+2024-10-15 00:12:19.533365 [hotstuff info] fetched: 0
+2024-10-15 00:12:19.533372 [hotstuff info] delivered: 0
+2024-10-15 00:12:19.533379 [hotstuff info] decided: 0
+2024-10-15 00:12:19.533385 [hotstuff info] gened: 0
+2024-10-15 00:12:19.533391 [hotstuff info] avg. parent_size: 0.000
+2024-10-15 00:12:19.533403 [hotstuff info] delivery time: 0.000 avg, 0.000 min, 0.000 max
+2024-10-15 00:12:19.533411 [hotstuff info] --- replica msg. (10s) ---
+2024-10-15 00:12:19.533472 [hotstuff info] c261250345: 0(0), 0(0), 0
+2024-10-15 00:12:19.533513 [hotstuff info] 065b010aed: 0(0), 0(0), 0
+2024-10-15 00:12:19.533633 [hotstuff info] 6540a0fea6: 0(0), 0(0), 0
+2024-10-15 00:12:19.533648 [hotstuff info] sent: 0
+2024-10-15 00:12:19.533655 [hotstuff info] recv: 0
+2024-10-15 00:12:19.533661 [hotstuff info] --- replica msg. total ---
+2024-10-15 00:12:19.533668 [hotstuff info] sent: 0
+2024-10-15 00:12:19.533674 [hotstuff info] recv: 0
+2024-10-15 00:12:19.533681 [hotstuff info] ====== end stats ======
+2024-10-15 00:12:19.533687 [hotstuff info] --- client msg. (10s) ---
+2024-10-15 00:12:19.533694 [hotstuff info] --- end client msg. ---
+2024-10-15 00:12:20.371345 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:20.371522 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:20.371658 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:20.503505 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:20.503920 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:20.504082 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:20.509695 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:20.509972 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:20.510106 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:23.225403 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:23.225504 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:23.225610 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:23.247953 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:23.248056 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:23.248170 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:23.302947 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:23.303525 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:23.303701 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:25.416271 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:25.416477 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:25.416596 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:25.579977 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:25.580178 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:25.580224 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:26.184311 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:26.184443 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:26.184459 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:27.748943 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:27.749581 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:27.749733 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:28.474526 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:28.474704 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:28.474728 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:28.871443 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:28.871687 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:28.871748 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:29.534740 [hotstuff info] ===== begin stats =====
+2024-10-15 00:12:29.534960 [hotstuff info] -------- queues -------
+2024-10-15 00:12:29.535015 [hotstuff info] blk_fetch_waiting: 0
+2024-10-15 00:12:29.535059 [hotstuff info] blk_delivery_waiting: 0
+2024-10-15 00:12:29.535103 [hotstuff info] decision_waiting: 0
+2024-10-15 00:12:29.535226 [hotstuff info] -------- misc ---------
+2024-10-15 00:12:29.535277 [hotstuff info] fetched: 0
+2024-10-15 00:12:29.535326 [hotstuff info] delivered: 0
+2024-10-15 00:12:29.535371 [hotstuff info] cmd_cache: 0
+2024-10-15 00:12:29.535415 [hotstuff info] blk_cache: 1
+2024-10-15 00:12:29.535458 [hotstuff info] ------ misc (10s) -----
+2024-10-15 00:12:29.535502 [hotstuff info] fetched: 0
+2024-10-15 00:12:29.535546 [hotstuff info] delivered: 0
+2024-10-15 00:12:29.535590 [hotstuff info] decided: 0
+2024-10-15 00:12:29.535633 [hotstuff info] gened: 0
+2024-10-15 00:12:29.535676 [hotstuff info] avg. parent_size: 0.000
+2024-10-15 00:12:29.535731 [hotstuff info] delivery time: 0.000 avg, 0.000 min, 0.000 max
+2024-10-15 00:12:29.535782 [hotstuff info] --- replica msg. (10s) ---
+2024-10-15 00:12:29.536176 [hotstuff info] c261250345: 0(0), 0(0), 0
+2024-10-15 00:12:29.536581 [hotstuff info] 065b010aed: 0(0), 0(0), 0
+2024-10-15 00:12:29.536907 [hotstuff info] 6540a0fea6: 0(0), 0(0), 0
+2024-10-15 00:12:29.536983 [hotstuff info] sent: 0
+2024-10-15 00:12:29.537017 [hotstuff info] recv: 0
+2024-10-15 00:12:29.537045 [hotstuff info] --- replica msg. total ---
+2024-10-15 00:12:29.537071 [hotstuff info] sent: 0
+2024-10-15 00:12:29.537097 [hotstuff info] recv: 0
+2024-10-15 00:12:29.537152 [hotstuff info] ====== end stats ======
+2024-10-15 00:12:29.537186 [hotstuff info] --- client msg. (10s) ---
+2024-10-15 00:12:29.537213 [hotstuff info] --- end client msg. ---
+2024-10-15 00:12:30.339583 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:30.340104 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:30.340249 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:31.333881 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:31.334257 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:31.334338 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:31.795277 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:31.795458 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:31.795480 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:33.155825 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:33.156392 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:33.156537 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:34.011737 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:34.012091 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:34.012206 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:34.245420 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:34.245937 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:34.246076 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:36.079878 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:36.080500 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:36.080640 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:36.678269 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:36.678791 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:36.678924 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:36.893665 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:36.894266 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:36.894417 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:38.362989 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:38.363575 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10003> mode=active>
+2024-10-15 00:12:38.363724 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:38.987340 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:38.987853 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10002> mode=active>
+2024-10-15 00:12:38.988002 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:39.122037 [net info] created <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:39.122647 [net info] 542865a568: lost connection <Conn fd=111 addr=<NetAddr 127.0.0.1:10001> mode=active>
+2024-10-15 00:12:39.122787 [hotstuff warn] network async error: unable to connect: Connection refused
+
+2024-10-15 00:12:39.509140 [net info] elapsed: 49.980 (wall) 0.107 (cpu)
+2024-10-15 00:12:39.509875 [net info] stopping all threads...
+2024-10-15 00:12:39.511403 [net info] stopping all threads...
