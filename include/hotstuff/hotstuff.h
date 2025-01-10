@@ -70,14 +70,6 @@ struct MsgCommit1 {
 };
 
 
-struct MsgCommit2 {
-    static const opcode_t opcode = 0x8;
-    DataStream serialized;
-    Commit2 vote;
-    MsgCommit2(const Commit2 &);
-    MsgCommit2(DataStream &&s): serialized(std::move(s)) {}
-    void postponed_parse(HotStuffCore *hsc);
-};
 
 struct MsgReqBlock {
     static const opcode_t opcode = 0x2;
@@ -208,7 +200,6 @@ class HotStuffBase: public HotStuffCore {
     inline void prepare_handler(MsgPrepare &&, const Net::conn_t &);
 
     inline void commit1_handler(MsgCommit1 &&, const Net::conn_t &);
-    inline void commit2_handler(MsgCommit2 &&, const Net::conn_t &);
 
     /** fetches full block data */
     inline void req_blk_handler(MsgReqBlock &&, const Net::conn_t &);
@@ -220,7 +211,6 @@ class HotStuffBase: public HotStuffCore {
     void do_broadcast_proposal(const Proposal &) override;
     void send_prepare(ReplicaID, const Prepare &) override;
     void send_commit1(ReplicaID, const Commit1 &) override;
-    void send_commit2(ReplicaID, const Commit2 &) override;
 
     void do_decide(Finality &&) override;
     void do_consensus(const block_t &blk) override;

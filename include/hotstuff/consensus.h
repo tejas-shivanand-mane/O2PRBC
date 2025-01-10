@@ -32,7 +32,6 @@ namespace hotstuff {
 struct Proposal;
 struct Prepare;
 struct Commit1;
-struct Commit2;
 
 struct Finality;
 
@@ -57,6 +56,10 @@ class HotStuffCore {
     /* == feature switches == */
     /** always vote negatively, useful for some PaceMakers */
     bool vote_disabled;
+
+    std::unordered_map<uint32_t, block_t> sent_prepares;
+
+
 
     block_t get_delivered_blk(const uint256_t &blk_hash);
     void sanity_check_delivered(const block_t &blk);
@@ -105,7 +108,6 @@ class HotStuffCore {
      * The block mentioned in the message should be already delivered. */
     void on_receive_prepare(const Prepare &vote);
     void on_receive_commit1(const Commit1 &vote);
-    void on_receive_commit2(const Commit2 &vote);
 
 
 
@@ -135,7 +137,6 @@ class HotStuffCore {
      * while safety is always guaranteed by HotStuffCore. */
     virtual void send_prepare(ReplicaID last_proposer, const Prepare &vote) = 0;
     virtual void send_commit1(ReplicaID last_proposer, const Commit1 &vote) = 0;
-    virtual void send_commit2(ReplicaID last_proposer, const Commit2 &vote) = 0;
 
     /* The user plugs in the detailed instances for those
      * polymorphic data types. */
@@ -344,65 +345,6 @@ struct Commit1: public Serializable {
 
 
 
-/** Abstraction for vote messages. */
-struct Commit2: public Serializable {
-    ReplicaID voter;
-    /** block being prepared */
-    uint256_t blk_hash;
-    /** proof of validity for the vote */
-    part_cert_bt cert;
-
-    /** handle of the core object to allow polymorphism */
-    HotStuffCore *hsc;
-
-    Commit2(): cert(nullptr), hsc(nullptr) {}
-    Commit2(ReplicaID voter,
-            const uint256_t &blk_hash,
-            part_cert_bt &&cert,
-            HotStuffCore *hsc):
-            voter(voter),
-            blk_hash(blk_hash),
-            cert(std::move(cert)), hsc(hsc) {}
-
-    Commit2(const Commit2 &other):
-            voter(other.voter),
-            blk_hash(other.blk_hash),
-            cert(other.cert ? other.cert->clone() : nullptr),
-            hsc(other.hsc) {}
-
-    Commit2(Commit2 &&other) = default;
-
-    void serialize(DataStream &s) const override {
-        s << voter << blk_hash << *cert;
-    }
-
-    void unserialize(DataStream &s) override {
-        assert(hsc != nullptr);
-        s >> voter >> blk_hash;
-        cert = hsc->parse_part_cert(s);
-    }
-
-    bool verify() const {
-        assert(hsc != nullptr);
-        return cert->verify(hsc->get_config().get_pubkey(voter)) &&
-               cert->get_obj_hash() == blk_hash;
-    }
-
-    promise_t verify(VeriPool &vpool) const {
-        assert(hsc != nullptr);
-        return cert->verify(hsc->get_config().get_pubkey(voter), vpool).then([this](bool result) {
-            return result && cert->get_obj_hash() == blk_hash;
-        });
-    }
-
-    operator std::string () const {
-        DataStream s;
-        s << "<commit2 "
-          << "rid=" << std::to_string(voter) << " "
-          << "blk=" << get_hex10(blk_hash) << ">";
-        return s;
-    }
-};
 
 
 struct Finality: public Serializable {

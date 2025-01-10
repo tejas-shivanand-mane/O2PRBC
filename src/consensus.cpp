@@ -242,6 +242,8 @@ block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds,
     update(bnew);
     Proposal prop(id, bnew, nullptr);
     LOG_PROTO("propose %s", std::string(*bnew).c_str());
+
+    LOG_INFO("New view with height: %d and blk height: %d", vheight, bnew->height);
     if (bnew->height <= vheight)
         throw std::runtime_error("new block should be higher than vheight");
     /* self-receive the proposal (no need to send it through the network) */
@@ -286,6 +288,10 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
     if (!self_prop && bnew->qc_ref)
         on_qc_finish(bnew->qc_ref);
     on_receive_proposal_(prop);
+
+
+    sent_prepares[bnew->height] = bnew;
+
     if (opinion && !vote_disabled)
     {
         LOG_PROTO("sending prepare");
@@ -296,33 +302,6 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
     }
 
 }
-//
-//void HotStuffCore::on_receive_prepare(const Prepare &vote) {
-//    LOG_PROTO("got prepare %s", std::string(vote).c_str());
-//    LOG_PROTO("now state: %s", std::string(*this).c_str());
-//    block_t blk = get_delivered_blk(vote.blk_hash);
-//    assert(vote.cert);
-//    size_t qsize = blk->prepared.size();
-//    if (qsize >= config.nmajority) return;
-//    if (!blk->prepared.insert(vote.voter).second)
-//    {
-//        LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
-//        return;
-//    }
-//    auto &qc = blk->self_qc;
-//    if (qc == nullptr)
-//    {
-//        LOG_WARN("vote for block not proposed by itself");
-//        qc = create_quorum_cert(blk->get_hash());
-//    }
-//    qc->add_part(vote.voter, *vote.cert);
-//    if (qsize + 1 == config.nmajority)
-//    {
-//        qc->compute();
-//        update_hqc(blk, qc);
-//        on_qc_finish(blk);
-//    }
-//}
 
 
 
@@ -368,7 +347,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
     size_t qsize = blk->commited1.size();
 
     LOG_PROTO("here on receiving commit1");
-    if (qsize >= config.nreplicas- config.nmajority+1) return;
+    if (qsize > config.nmajority) return;
     if (!blk->commited1.insert(vote.voter).second)
     {
         LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
@@ -377,37 +356,31 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
     if (qsize + 1 == config.nreplicas- config.nmajority+1)
     {
-        send_commit2(id,
-                     Commit2(id, blk->get_hash(),
+        send_commit1(id,
+                     Commit1(id, blk->get_hash(),
                              create_part_cert(*priv_key, blk->get_hash()), this));
 
-    }
-}
-
-
-
-
-
-void HotStuffCore::on_receive_commit2(const Commit2 &vote) {
-            LOG_PROTO("got commit2 %s", std::string(vote).c_str());
-            LOG_PROTO("now state: %s", std::string(*this).c_str());
-    block_t blk = get_delivered_blk(vote.blk_hash);
-    assert(vote.cert);
-    size_t qsize = blk->commited2.size();
-
-            LOG_PROTO("here on receiving commit2");
-    if (qsize >= config.nmajority) return;
-    if (!blk->commited2.insert(vote.voter).second)
-    {
-                LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
-        return;
     }
 
     if (qsize + 1 == config.nmajority)
     {
+        HOTSTUFF_LOG_INFO("Going to commit due to receiving majority for height %d with"
+                          " sent_prepares size: %d",
+                          blk->get_height(), sent_prepares.size());
+
+        sent_prepares.clear();
+        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
+
         on_commit(blk);
+
     }
+
+
 }
+
+
+
+
 
 
 

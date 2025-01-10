@@ -49,12 +49,6 @@ void MsgCommit1::postponed_parse(HotStuffCore *hsc) {
 }
 
 
-const opcode_t MsgCommit2::opcode;
-MsgCommit2::MsgCommit2(const Commit2 &vote) { serialized << vote; }
-void MsgCommit2::postponed_parse(HotStuffCore *hsc) {
-    vote.hsc = hsc;
-    serialized >> vote;
-}
 
 const opcode_t MsgReqBlock::opcode;
 MsgReqBlock::MsgReqBlock(const std::vector<uint256_t> &blk_hashes) {
@@ -271,22 +265,6 @@ void HotStuffBase::commit1_handler(MsgCommit1 &&msg, const Net::conn_t &conn) {
 
 
 
-void HotStuffBase::commit2_handler(MsgCommit2 &&msg, const Net::conn_t &conn) {
-    const auto &peer = conn->get_peer_id();
-    if (peer.is_null()) return;
-    msg.postponed_parse(this);
-    //auto &vote = msg.vote;
-    RcObj<Commit2> v(new Commit2(std::move(msg.vote)));
-    promise::all(std::vector<promise_t>{
-            async_deliver_blk(v->blk_hash, peer),
-            v->verify(vpool),
-    }).then([this, v=std::move(v)](const promise::values_t values) {
-        if (!promise::any_cast<bool>(values[1]))
-                    LOG_WARN("invalid vote from %d", v->voter);
-        else
-            on_receive_commit2(*v);
-    });
-}
 
 
 
@@ -421,7 +399,6 @@ HotStuffBase::HotStuffBase(uint32_t blk_size,
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::propose_handler, this, _1, _2));
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::prepare_handler, this, _1, _2));
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::commit1_handler, this, _1, _2));
-    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::commit2_handler, this, _1, _2));
 
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::req_blk_handler, this, _1, _2));
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::resp_blk_handler, this, _1, _2));
@@ -466,14 +443,6 @@ void HotStuffBase::send_commit1(ReplicaID last_proposer, const Commit1 &vote) {
 }
 
 
-
-void HotStuffBase::send_commit2(ReplicaID last_proposer, const Commit2 &vote) {
-    pmaker->beat_resp(last_proposer)
-            .then([this, vote](ReplicaID proposer) {
-                on_receive_commit2(vote);
-                pn.multicast_msg(MsgCommit2(vote), peers);
-            });
-}
 
 
 
