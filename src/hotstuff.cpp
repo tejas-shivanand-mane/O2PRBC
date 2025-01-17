@@ -264,7 +264,41 @@ void HotStuffBase::commit1_handler(MsgCommit1 &&msg, const Net::conn_t &conn) {
 
 
 
-
+//
+//void HotStuffBase::start_remote_view_change_timer(int timer_cid, const block_t btemp)
+//{
+//
+//    cid_to_remote_view_change_timer[timer_cid] = TimerEvent(ec, [this, timer_cid, btemp](TimerEvent &)
+//    {
+//
+//        HOTSTUFF_LOG_INFO("timer for remote-view-change triggerred with cid:%d", timer_cid);
+//
+//
+//        HOTSTUFF_LOG_INFO("block_t found for timer_cid: %d with height:%d",
+//                          timer_cid, btemp->get_height());
+//
+//        Proposal prop_other_clusters(id, btemp, nullptr, cluster_id, cluster_id, btemp->get_height(), 3);
+//
+//        bool leader_check = check_leader();
+//
+//
+//        auto it = finished_mc_cids.find(timer_cid);
+//
+//        if (it==finished_mc_cids.end() && (timer_cid-last_rvc)>100 )
+//        {
+//            {
+//                HOTSTUFF_LOG_INFO("starting local remote view change complaint");
+//                start_local_complain(btemp->get_height(), btemp->get_hash());
+//
+//            }
+//            last_rvc = timer_cid;
+//        }
+//
+//    });
+//    cid_to_remote_view_change_timer[timer_cid].add(rvct_timeout);
+//
+//
+//}
 
 
 

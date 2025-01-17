@@ -138,6 +138,11 @@ class HotStuffCore {
     virtual void send_prepare(ReplicaID last_proposer, const Prepare &vote) = 0;
     virtual void send_commit1(ReplicaID last_proposer, const Commit1 &vote) = 0;
 
+
+
+//    virtual void start_remote_view_change_timer(int timer_cid, const block_t base) = 0;
+
+
     /* The user plugs in the detailed instances for those
      * polymorphic data types. */
     public:

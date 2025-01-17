@@ -250,6 +250,11 @@ class HotStuffBase: public HotStuffCore {
 //    virtual void do_demand_commands(size_t) {}
 //#endif
 
+
+
+//    void start_remote_view_change_timer(int timer_cid, const block_t base);
+
+
     /* Helper functions */
     /** Returns a promise resolved (with command_t cmd) when Command is fetched. */
     promise_t async_fetch_cmd(const uint256_t &cmd_hash, const PeerId *replica, bool fetch_now = true);
