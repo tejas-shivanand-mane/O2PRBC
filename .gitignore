@@ -29,4 +29,3 @@ build/*
 .ipynb_checkpoints/*
 .cmake/*
 temp/*
-*.conf
