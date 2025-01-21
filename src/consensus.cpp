@@ -307,7 +307,7 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
 
 void HotStuffCore::on_receive_prepare(const Prepare &vote) {
     LOG_PROTO("got prepare %s", std::string(vote).c_str());
-    LOG_PROTO("now state: %s", std::string(*this).c_str());
+//    LOG_PROTO("now state: %s", std::string(*this).c_str());
     block_t blk = get_delivered_blk(vote.blk_hash);
     assert(vote.cert);
     size_t qsize = blk->prepared.size();
@@ -340,13 +340,13 @@ void HotStuffCore::on_receive_prepare(const Prepare &vote) {
 
 
 void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
-            LOG_PROTO("got commit1 %s", std::string(vote).c_str());
+//            LOG_PROTO("got commit1 %s", std::string(vote).c_str());
             LOG_PROTO("now state: %s", std::string(*this).c_str());
     block_t blk = get_delivered_blk(vote.blk_hash);
     assert(vote.cert);
     size_t qsize = blk->commited1.size();
 
-    LOG_PROTO("here on receiving commit1");
+//    LOG_PROTO("here on receiving commit1");
     if (qsize > config.nmajority) return;
     if (!blk->commited1.insert(vote.voter).second)
     {
@@ -364,12 +364,12 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
     if (qsize + 1 == config.nmajority)
     {
-        HOTSTUFF_LOG_INFO("Going to commit due to receiving majority for height %d with"
-                          " sent_prepares size: %d",
-                          blk->get_height(), sent_prepares.size());
+//        HOTSTUFF_LOG_INFO("Going to commit due to receiving majority for height %d with"
+//                          " sent_prepares size: %d",
+//                          blk->get_height(), sent_prepares.size());
 
         sent_prepares.clear();
-        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
+//        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
 
         on_commit(blk);
 
