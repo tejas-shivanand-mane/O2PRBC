@@ -134,7 +134,10 @@ class Block {
 
     std::unordered_set<ReplicaID> prepared;
     std::unordered_set<ReplicaID> commited1;
-    std::unordered_set<ReplicaID> commited2;
+    std::unordered_set<ReplicaID> collected;
+    std::unordered_set<ReplicaID> csended;
+    std::unordered_set<ReplicaID> echoed;
+    std::unordered_set<ReplicaID> readyed;
 
 
     public:

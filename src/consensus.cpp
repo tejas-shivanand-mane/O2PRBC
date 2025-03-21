@@ -340,8 +340,8 @@ void HotStuffCore::on_receive_prepare(const Prepare &vote) {
 
 
 void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
-//            LOG_PROTO("got commit1 %s", std::string(vote).c_str());
-            LOG_PROTO("now state: %s", std::string(*this).c_str());
+            LOG_PROTO("got commit1 %s", std::string(vote).c_str());
+//            LOG_PROTO("now state: %s", std::string(*this).c_str());
     block_t blk = get_delivered_blk(vote.blk_hash);
     assert(vote.cert);
     size_t qsize = blk->commited1.size();
@@ -370,8 +370,21 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         sent_prepares.clear();
 //        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
+        LOG_INFO("blk->get_height(), part_decided is %d, %d", blk->get_height(), get_part_decided());
+        if (get_part_decided() !=10001)
+        {
+            on_commit(blk);
 
-        on_commit(blk);
+        }
+        else
+        {
+            LOG_INFO("Not commiting due to collection phase");
+            LOG_INFO("sending collect msg");
+            send_collect(id,
+                         Collect(id, blk->get_hash(),
+                                 create_part_cert(*priv_key, blk->get_hash()), this));
+
+        }
 
     }
 
@@ -381,7 +394,146 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
 
 
+    void HotStuffCore::on_send_collect(const hotstuff::Finality &vote)  {
 
+        block_t blk = get_delivered_blk(vote.blk_hash);
+
+        LOG_INFO("sending collect msg");
+        send_collect(id,
+                     Collect(id, blk->get_hash(),
+                             create_part_cert(*priv_key, blk->get_hash()), this));
+
+
+    }
+
+
+
+
+    void HotStuffCore::on_receive_collect(const Collect &vote) {
+            LOG_PROTO("got collect %s", std::string(vote).c_str());
+
+        block_t blk = get_delivered_blk(vote.blk_hash);
+        assert(vote.cert);
+        size_t qsize = blk->collected.size();
+
+//    LOG_PROTO("here on receiving commit1");
+        if (qsize > config.nmajority) return;
+        if (!blk->collected.insert(vote.voter).second)
+        {
+            LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
+            return;
+        }
+
+        if (qsize == 0)
+        {
+            send_csend(id,
+                         Csend(id, blk->get_hash(),
+                                 create_part_cert(*priv_key, blk->get_hash()), this));
+
+        }
+
+
+
+    }
+
+
+
+    void HotStuffCore::on_receive_csend(const Csend &vote) {
+        LOG_PROTO("got Csend %s", std::string(vote).c_str());
+
+        block_t blk = get_delivered_blk(vote.blk_hash);
+        assert(vote.cert);
+        size_t qsize = blk->csended.size();
+
+//    LOG_PROTO("here on receiving commit1");
+        if (qsize > config.nmajority) return;
+        if (!blk->csended.insert(vote.voter).second)
+        {
+            LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
+            return;
+        }
+
+        if (qsize == 0)
+        {
+            LOG_INFO("sending echo");
+            send_echo(id,
+                       Echo(id, blk->get_hash(),
+                             create_part_cert(*priv_key, blk->get_hash()), this));
+
+        }
+
+
+
+    }
+
+
+
+
+    void HotStuffCore::on_receive_echo(const Echo &vote) {
+        LOG_PROTO("got Echo %s", std::string(vote).c_str());
+
+        block_t blk = get_delivered_blk(vote.blk_hash);
+        assert(vote.cert);
+        size_t qsize = blk->echoed.size();
+
+//    LOG_PROTO("here on receiving commit1");
+        if (qsize > config.nmajority) return;
+        if (!blk->echoed.insert(vote.voter).second)
+        {
+            LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
+            return;
+        }
+
+        if (qsize + 1 == config.nmajority)
+        {
+            send_ready(id,
+                      Ready(id, blk->get_hash(),
+                           create_part_cert(*priv_key, blk->get_hash()), this));
+
+        }
+
+
+
+    }
+
+
+
+    void HotStuffCore::on_receive_ready(const Ready &vote) {
+        LOG_PROTO("got Ready %s", std::string(vote).c_str());
+
+        block_t blk = get_delivered_blk(vote.blk_hash);
+        assert(vote.cert);
+        size_t qsize = blk->readyed.size();
+
+//    LOG_PROTO("here on receiving commit1");
+        if (qsize > config.nmajority) return;
+        if (!blk->readyed.insert(vote.voter).second)
+        {
+            LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
+            return;
+        }
+
+
+        if (qsize + 1 == config.nreplicas- config.nmajority+1)
+        {
+            send_ready(id,
+                         Ready(id, blk->get_hash(),
+                                 create_part_cert(*priv_key, blk->get_hash()), this));
+
+        }
+
+        if (qsize + 1 == config.nmajority)
+        {
+
+            LOG_INFO("Commiting due to enough ready messages");
+            on_commit(blk);
+
+
+        }
+
+
+
+    }
 
 
 

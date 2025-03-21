@@ -70,6 +70,43 @@ struct MsgCommit1 {
 };
 
 
+struct MsgCollect {
+    static const opcode_t opcode = 0x8;
+    DataStream serialized;
+    Collect vote;
+    MsgCollect(const Collect &);
+    MsgCollect(DataStream &&s): serialized(std::move(s)) {}
+    void postponed_parse(HotStuffCore *hsc);
+};
+
+
+struct MsgCsend {
+    static const opcode_t opcode = 0x4;
+    DataStream serialized;
+    Csend vote;
+    MsgCsend(const Csend &);
+    MsgCsend(DataStream &&s): serialized(std::move(s)) {}
+    void postponed_parse(HotStuffCore *hsc);
+};
+
+struct MsgEcho {
+    static const opcode_t opcode = 0x5;
+    DataStream serialized;
+    Echo vote;
+    MsgEcho(const Echo &);
+    MsgEcho(DataStream &&s): serialized(std::move(s)) {}
+    void postponed_parse(HotStuffCore *hsc);
+};
+
+struct MsgReady {
+    static const opcode_t opcode = 0x6;
+    DataStream serialized;
+    Ready vote;
+    MsgReady(const Ready &);
+    MsgReady(DataStream &&s): serialized(std::move(s)) {}
+    void postponed_parse(HotStuffCore *hsc);
+};
+
 
 struct MsgReqBlock {
     static const opcode_t opcode = 0x2;
@@ -184,6 +221,9 @@ class HotStuffBase: public HotStuffCore {
     mutable uint32_t part_fetched;
     mutable uint32_t part_delivered;
     mutable uint32_t part_decided;
+    mutable uint32_t collected;
+
+
     mutable uint32_t part_gened;
     mutable double part_delivery_time;
     mutable double part_delivery_time_min;
@@ -200,6 +240,10 @@ class HotStuffBase: public HotStuffCore {
     inline void prepare_handler(MsgPrepare &&, const Net::conn_t &);
 
     inline void commit1_handler(MsgCommit1 &&, const Net::conn_t &);
+    inline void collect_handler(MsgCollect &&, const Net::conn_t &);
+    inline void csend_handler(MsgCsend &&, const Net::conn_t &);
+    inline void echo_handler(MsgEcho &&, const Net::conn_t &);
+    inline void ready_handler(MsgReady &&, const Net::conn_t &);
 
     /** fetches full block data */
     inline void req_blk_handler(MsgReqBlock &&, const Net::conn_t &);
@@ -211,8 +255,15 @@ class HotStuffBase: public HotStuffCore {
     void do_broadcast_proposal(const Proposal &) override;
     void send_prepare(ReplicaID, const Prepare &) override;
     void send_commit1(ReplicaID, const Commit1 &) override;
+    void send_collect(ReplicaID, const Collect &) override;
+    void send_csend(ReplicaID, const Csend &) override;
+    void send_echo(ReplicaID, const Echo &) override;
+    void send_ready(ReplicaID, const Ready &) override;
 
-    void do_decide(Finality &&) override;
+    int get_part_decided() override;
+
+
+        void do_decide(Finality &&) override;
     void do_consensus(const block_t &blk) override;
 
     protected:

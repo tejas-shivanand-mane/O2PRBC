@@ -49,6 +49,35 @@ void MsgCommit1::postponed_parse(HotStuffCore *hsc) {
 }
 
 
+const opcode_t MsgCollect::opcode;
+MsgCollect::MsgCollect(const Collect &vote) { serialized << vote; }
+void MsgCollect::postponed_parse(HotStuffCore *hsc) {
+    vote.hsc = hsc;
+    serialized >> vote;
+}
+
+const opcode_t MsgCsend::opcode;
+MsgCsend::MsgCsend(const Csend &vote) { serialized << vote; }
+void MsgCsend::postponed_parse(HotStuffCore *hsc) {
+    vote.hsc = hsc;
+    serialized >> vote;
+}
+
+const opcode_t MsgEcho::opcode;
+MsgEcho::MsgEcho(const Echo &vote) { serialized << vote; }
+void MsgEcho::postponed_parse(HotStuffCore *hsc) {
+    vote.hsc = hsc;
+    serialized >> vote;
+}
+
+const opcode_t MsgReady::opcode;
+MsgReady::MsgReady(const Ready &vote) { serialized << vote; }
+void MsgReady::postponed_parse(HotStuffCore *hsc) {
+    vote.hsc = hsc;
+    serialized >> vote;
+}
+
+
 
 const opcode_t MsgReqBlock::opcode;
 MsgReqBlock::MsgReqBlock(const std::vector<uint256_t> &blk_hashes) {
@@ -265,6 +294,89 @@ void HotStuffBase::commit1_handler(MsgCommit1 &&msg, const Net::conn_t &conn) {
 
 
 
+
+    void HotStuffBase::collect_handler(MsgCollect &&msg, const Net::conn_t &conn) {
+
+        HOTSTUFF_LOG_INFO("Got collect");
+        const auto &peer = conn->get_peer_id();
+        if (peer.is_null()) return;
+        msg.postponed_parse(this);
+        //auto &vote = msg.vote;
+        RcObj<Collect> v(new Collect(std::move(msg.vote)));
+        promise::all(std::vector<promise_t>{
+                async_deliver_blk(v->blk_hash, peer),
+                v->verify(vpool),
+        }).then([this, v=std::move(v)](const promise::values_t values) {
+            if (!promise::any_cast<bool>(values[1]))
+                LOG_WARN("invalid collect from %d", v->voter);
+            else
+                on_receive_collect(*v);
+        });
+    }
+
+
+
+
+    void HotStuffBase::csend_handler(MsgCsend &&msg, const Net::conn_t &conn) {
+
+        HOTSTUFF_LOG_INFO("Got collect");
+        const auto &peer = conn->get_peer_id();
+        if (peer.is_null()) return;
+        msg.postponed_parse(this);
+        //auto &vote = msg.vote;
+        RcObj<Csend> v(new Csend(std::move(msg.vote)));
+        promise::all(std::vector<promise_t>{
+                async_deliver_blk(v->blk_hash, peer),
+                v->verify(vpool),
+        }).then([this, v=std::move(v)](const promise::values_t values) {
+            if (!promise::any_cast<bool>(values[1]))
+                LOG_WARN("invalid Csend from %d", v->voter);
+            else
+                on_receive_csend(*v);
+        });
+    }
+
+
+    void HotStuffBase::echo_handler(MsgEcho &&msg, const Net::conn_t &conn) {
+
+        HOTSTUFF_LOG_INFO("Got echo");
+        const auto &peer = conn->get_peer_id();
+        if (peer.is_null()) return;
+        msg.postponed_parse(this);
+        //auto &vote = msg.vote;
+        RcObj<Echo> v(new Echo(std::move(msg.vote)));
+        promise::all(std::vector<promise_t>{
+                async_deliver_blk(v->blk_hash, peer),
+                v->verify(vpool),
+        }).then([this, v=std::move(v)](const promise::values_t values) {
+            if (!promise::any_cast<bool>(values[1]))
+                LOG_WARN("invalid Echo from %d", v->voter);
+            else
+                on_receive_echo(*v);
+        });
+    }
+
+
+    void HotStuffBase::ready_handler(MsgReady &&msg, const Net::conn_t &conn) {
+
+        HOTSTUFF_LOG_INFO("Got ready");
+        const auto &peer = conn->get_peer_id();
+        if (peer.is_null()) return;
+        msg.postponed_parse(this);
+        //auto &vote = msg.vote;
+        RcObj<Ready> v(new Ready(std::move(msg.vote)));
+        promise::all(std::vector<promise_t>{
+                async_deliver_blk(v->blk_hash, peer),
+                v->verify(vpool),
+        }).then([this, v=std::move(v)](const promise::values_t values) {
+            if (!promise::any_cast<bool>(values[1]))
+                LOG_WARN("invalid ready from %d", v->voter);
+            else
+                on_receive_ready(*v);
+        });
+    }
+
+
 //
 //void HotStuffBase::start_remote_view_change_timer(int timer_cid, const block_t btemp)
 //{
@@ -425,6 +537,7 @@ HotStuffBase::HotStuffBase(uint32_t blk_size,
         part_fetched(0),
         part_delivered(0),
         part_decided(0),
+        collected(0),
         part_gened(0),
         part_delivery_time(0),
         part_delivery_time_min(double_inf),
@@ -434,6 +547,11 @@ HotStuffBase::HotStuffBase(uint32_t blk_size,
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::propose_handler, this, _1, _2));
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::prepare_handler, this, _1, _2));
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::commit1_handler, this, _1, _2));
+    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::collect_handler, this, _1, _2));
+    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::csend_handler, this, _1, _2));
+    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::echo_handler, this, _1, _2));
+    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::ready_handler, this, _1, _2));
+
 
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::req_blk_handler, this, _1, _2));
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::resp_blk_handler, this, _1, _2));
@@ -479,6 +597,55 @@ void HotStuffBase::send_commit1(ReplicaID last_proposer, const Commit1 &vote) {
 
 
 
+int HotStuffBase::get_part_decided() {
+    int p = part_decided;
+    return p;
+}
+
+
+void HotStuffBase::send_collect(ReplicaID last_proposer, const Collect &vote) {
+    pmaker->beat_resp(last_proposer)
+            .then([this, vote](ReplicaID proposer) {
+
+                on_receive_collect(vote);
+                pn.multicast_msg(MsgCollect(vote), peers);
+
+            });
+}
+
+
+void HotStuffBase::send_csend(ReplicaID last_proposer, const Csend &vote) {
+    pmaker->beat_resp(last_proposer)
+            .then([this, vote](ReplicaID proposer) {
+
+                on_receive_csend(vote);
+                pn.multicast_msg(MsgCsend(vote), peers);
+
+            });
+}
+
+void HotStuffBase::send_echo(ReplicaID last_proposer, const Echo &vote) {
+    pmaker->beat_resp(last_proposer)
+            .then([this, vote](ReplicaID proposer) {
+
+                on_receive_echo(vote);
+                pn.multicast_msg(MsgEcho(vote), peers);
+
+            });
+}
+
+void HotStuffBase::send_ready(ReplicaID last_proposer, const Ready &vote) {
+    pmaker->beat_resp(last_proposer)
+            .then([this, vote](ReplicaID proposer) {
+
+                on_receive_ready(vote);
+                pn.multicast_msg(MsgReady(vote), peers);
+
+            });
+}
+
+
+
 
 
 
@@ -487,7 +654,18 @@ void HotStuffBase::do_consensus(const block_t &blk) {
 }
 
 void HotStuffBase::do_decide(Finality &&fin) {
+
     part_decided++;
+//
+//    if(part_decided == 10000 && collected==0)
+//    {
+//        if (get_id() == 1)
+//        {
+//            on_send_collect(fin);
+//        }
+//        collected++;
+//
+//    }
 
     HOTSTUFF_LOG_INFO("part_decided is %d", part_decided);
     state_machine_execute(fin);
@@ -497,6 +675,10 @@ void HotStuffBase::do_decide(Finality &&fin) {
         it->second(std::move(fin));
         decision_waiting.erase(it);
     }
+
+
+
+
 }
 
 HotStuffBase::~HotStuffBase() {}
