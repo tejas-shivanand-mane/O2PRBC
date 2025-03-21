@@ -218,7 +218,7 @@ void HotStuffBase::propose_handler(MsgPropose &&msg, const Net::conn_t &conn) {
     if (peer != get_config().get_peer_id(prop.proposer))
     {
         LOG_WARN("invalid proposal from %d", prop.proposer);
-        
+
         return;
     }
     promise::all(std::vector<promise_t>{
@@ -367,7 +367,7 @@ void HotStuffBase::print_stat() const {
     part_parent_size = 0;
     part_fetched = 0;
     part_delivered = 0;
-    part_decided = 0;
+//    part_decided = 0;
     part_gened = 0;
     part_delivery_time = 0;
     part_delivery_time_min = double_inf;
@@ -488,6 +488,8 @@ void HotStuffBase::do_consensus(const block_t &blk) {
 
 void HotStuffBase::do_decide(Finality &&fin) {
     part_decided++;
+
+    HOTSTUFF_LOG_INFO("part_decided is %d", part_decided);
     state_machine_execute(fin);
     auto it = decision_waiting.find(fin.cmd_hash);
     if (it != decision_waiting.end())
@@ -549,6 +551,8 @@ void HotStuffBase::start(
                     cmds.push_back(cmd_pending_buffer.front());
                     cmd_pending_buffer.pop();
                 }
+
+
                 pmaker->beat().then([this, cmds = std::move(cmds)](ReplicaID proposer) {
                     if (proposer == get_id())
                         on_new_view(cmds, pmaker->get_parents());
