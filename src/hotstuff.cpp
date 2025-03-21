@@ -218,6 +218,7 @@ void HotStuffBase::propose_handler(MsgPropose &&msg, const Net::conn_t &conn) {
     if (peer != get_config().get_peer_id(prop.proposer))
     {
         LOG_WARN("invalid proposal from %d", prop.proposer);
+        
         return;
     }
     promise::all(std::vector<promise_t>{
