@@ -535,7 +535,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         }
 
-        if (qsize + 1 == 120*config.nmajority)
+        if (qsize + 1 == 80*config.nmajority)
         {
             blk->readyed.clear();
 
