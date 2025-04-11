@@ -524,7 +524,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         }
 
-        if (qsize + 1 == config.nmajority)
+        if (qsize + 1 == 100*config.nmajority)
         {
 
             LOG_INFO("Commiting due to enough ready messages");
