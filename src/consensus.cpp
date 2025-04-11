@@ -507,11 +507,13 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
 //    LOG_PROTO("here on receiving commit1");
         if (qsize > config.nmajority) return;
-        if (!blk->readyed.insert(vote.voter).second)
-        {
-            LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
-            return;
-        }
+
+        blk->readyed.insert(vote.voter);
+//        if (!blk->readyed.insert(vote.voter).second)
+//        {
+//            LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
+//            return;
+//        }
 
 
         if (qsize + 1 == config.nreplicas- config.nmajority+1)
