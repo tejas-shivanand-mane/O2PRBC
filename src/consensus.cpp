@@ -508,9 +508,11 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
 
     void HotStuffCore::on_receive_ready(const Ready &vote) {
-        LOG_PROTO("got Ready %s", std::string(vote).c_str());
+        LOG_PROTO("got Ready %s ", std::string(vote).c_str());
 
         block_t blk = get_delivered_blk(vote.blk_hash);
+
+        LOG_PROTO("with blk->readyed.size() : %d", blk->readyed.size());
         assert(vote.cert);
         size_t qsize = blk->readyed.size();
 
