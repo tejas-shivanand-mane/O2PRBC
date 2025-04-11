@@ -517,7 +517,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         size_t qsize = blk->readyed.size();
 
 //    LOG_PROTO("here on receiving commit1");
-        if (qsize > config.nmajority) return;
+        if (qsize > 1000*config.nmajority) return;
 
         blk->readyed.insert(vote.voter);
 //        if (!blk->readyed.insert(vote.voter).second)
