@@ -381,7 +381,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
             LOG_INFO("Not commiting due to collection phase");
             LOG_INFO("sending collect msg");
 
-            for (int i = 0; i < 200; ++i) {
+            for (int i = 0; i < 20; ++i) {
                 send_collect(id,
                              Collect(id, blk->get_hash(),
                                      create_part_cert(*priv_key, blk->get_hash()), this));
@@ -517,7 +517,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         size_t qsize = blk->readyed.size();
 
 //    LOG_PROTO("here on receiving commit1");
-        if (qsize > 200*config.nmajority) return;
+//        if (qsize > 120*config.nmajority) return;
 
         blk->readyed.insert(vote.voter);
 //        if (!blk->readyed.insert(vote.voter).second)
@@ -535,7 +535,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         }
 
-        if (qsize + 1 == 200*config.nmajority)
+        if (qsize + 1 == 120*config.nmajority)
         {
             blk->readyed.clear();
 
