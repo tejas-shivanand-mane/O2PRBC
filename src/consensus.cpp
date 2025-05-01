@@ -381,12 +381,12 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
             LOG_INFO("Not commiting due to collection phase");
             LOG_INFO("sending collect msg");
 
-            for (int i = 0; i < 10; ++i) {
+//            for (int i = 0; i < 1; ++i) {
                 send_collect(id,
                              Collect(id, blk->get_hash(),
                                      create_part_cert(*priv_key, blk->get_hash()), this));
 
-            }
+//            }
 
 
         }
@@ -536,13 +536,12 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         }
 
-        if (qsize + 1 == 40*config.nmajority)
+        if (qsize + 1 == config.nmajority)
         {
             blk->readyed.clear();
 
             LOG_INFO("Commiting due to enough ready messages");
             on_commit(blk);
-
 
         }
 
