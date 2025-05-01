@@ -385,7 +385,8 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
                 send_collect(id,
                              Collect(id, blk->get_hash(),
                                      create_part_cert(*priv_key, blk->get_hash()), this));
-                }
+
+            }
 
 
         }
