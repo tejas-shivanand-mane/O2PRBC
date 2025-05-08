@@ -431,7 +431,8 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         if (qsize == 0)
         {
-            blk->collected.clear();
+            HOTSTUFF_LOG_INFO("Sending csend");
+//            blk->collected.clear();
             send_csend(id,
                          Csend(id, blk->get_hash(),
                                  create_part_cert(*priv_key, blk->get_hash()), this));
@@ -461,7 +462,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         if (qsize == 0)
         {
-            blk->csended.clear();
+//            blk->csended.clear();
 
             LOG_INFO("sending echo");
             send_echo(id,
@@ -494,7 +495,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         if (qsize + 1 == config.nmajority)
         {
-            blk->echoed.clear();
+//            blk->echoed.clear();
 
             send_ready(id,
                       Ready(id, blk->get_hash(),
@@ -518,7 +519,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         size_t qsize = blk->readyed.size();
 
 //    LOG_PROTO("here on receiving commit1");
-//        if (qsize > 120*config.nmajority) return;
+        if (qsize > config.nmajority) return;
 
         blk->readyed.insert(vote.voter);
 //        if (!blk->readyed.insert(vote.voter).second)
@@ -538,7 +539,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         if (qsize + 1 == config.nmajority)
         {
-            blk->readyed.clear();
+//            blk->readyed.clear();
 
             LOG_INFO("Commiting due to enough ready messages");
             on_commit(blk);
