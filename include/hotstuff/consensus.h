@@ -361,67 +361,81 @@ struct Commit1: public Serializable {
 };
 
 
-
-
 /** Abstraction for vote messages. */
-struct Collect: public Serializable {
-    ReplicaID voter;
-    /** block being prepared */
-    uint256_t blk_hash;
-    /** proof of validity for the vote */
-    part_cert_bt cert;
+    struct Collect: public Serializable {
+        ReplicaID voter;
+        uint256_t blk_hash;
+        part_cert_bt cert;
+        HotStuffCore *hsc;
 
-    /** handle of the core object to allow polymorphism */
-    HotStuffCore *hsc;
+        /** junk data to inflate message size */
+        std::vector<uint8_t> junk_data;
 
-    Collect(): cert(nullptr), hsc(nullptr) {}
-    Collect(ReplicaID voter,
-            const uint256_t &blk_hash,
-            part_cert_bt &&cert,
-            HotStuffCore *hsc):
-            voter(voter),
-            blk_hash(blk_hash),
-            cert(std::move(cert)), hsc(hsc) {}
+        Collect(): cert(nullptr), hsc(nullptr), junk_data(20 * 1024, 'J') {}
 
-    Collect(const Collect &other):
-            voter(other.voter),
-            blk_hash(other.blk_hash),
-            cert(other.cert ? other.cert->clone() : nullptr),
-            hsc(other.hsc) {}
+        Collect(ReplicaID voter,
+                const uint256_t &blk_hash,
+                part_cert_bt &&cert,
+                HotStuffCore *hsc,
+                size_t junk_size = 20 * 1024):
+                voter(voter),
+                blk_hash(blk_hash),
+                cert(std::move(cert)),
+                hsc(hsc),
+                junk_data(junk_size, 'J') {}
 
-    Collect(Collect &&other) = default;
+        Collect(const Collect &other):
+                voter(other.voter),
+                blk_hash(other.blk_hash),
+                cert(other.cert ? other.cert->clone() : nullptr),
+                hsc(other.hsc),
+                junk_data(other.junk_data) {}
 
-    void serialize(DataStream &s) const override {
-        s << voter << blk_hash << *cert;
-    }
+        Collect(Collect &&other) = default;
 
-    void unserialize(DataStream &s) override {
-        assert(hsc != nullptr);
-        s >> voter >> blk_hash;
-        cert = hsc->parse_part_cert(s);
-    }
+        void serialize(DataStream &s) const override {
+            s << voter << blk_hash << *cert;
+            s << (uint32_t)junk_data.size();
+            for (auto b : junk_data)
+                s << b;
+        }
 
-    bool verify() const {
-        assert(hsc != nullptr);
-        return cert->verify(hsc->get_config().get_pubkey(voter)) &&
-               cert->get_obj_hash() == blk_hash;
-    }
+        void unserialize(DataStream &s) override {
+            assert(hsc != nullptr);
+            s >> voter >> blk_hash;
+            cert = hsc->parse_part_cert(s);
+            uint32_t size;
+            s >> size;
+            junk_data.resize(size);
+            for (uint32_t i = 0; i < size; ++i)
+                s >> junk_data[i];
+        }
 
-    promise_t verify(VeriPool &vpool) const {
-        assert(hsc != nullptr);
-        return cert->verify(hsc->get_config().get_pubkey(voter), vpool).then([this](bool result) {
-            return result && cert->get_obj_hash() == blk_hash;
-        });
-    }
+        bool verify() const {
+            assert(hsc != nullptr);
+            return cert->verify(hsc->get_config().get_pubkey(voter)) &&
+                   cert->get_obj_hash() == blk_hash;
+        }
 
-    operator std::string () const {
-        DataStream s;
-        s << "<Collect "
-          << "rid=" << std::to_string(voter) << " "
-          << "blk=" << get_hex10(blk_hash) << ">";
-        return s;
-    }
-};
+        promise_t verify(VeriPool &vpool) const {
+            assert(hsc != nullptr);
+            return cert->verify(hsc->get_config().get_pubkey(voter), vpool).then([this](bool result) {
+                return result && cert->get_obj_hash() == blk_hash;
+            });
+        }
+
+        void set_junk(size_t size, uint8_t fill = 'J') {
+            junk_data = std::vector<uint8_t>(size, fill);
+        }
+
+        operator std::string () const {
+            DataStream s;
+            s << "<Collect "
+              << "rid=" << std::to_string(voter) << " "
+              << "blk=" << get_hex10(blk_hash) << ">";
+            return s;
+        }
+    };
 
 
 
