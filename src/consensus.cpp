@@ -371,7 +371,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         sent_prepares.clear();
 //        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
         LOG_INFO("blk->get_height(), part_decided is %d, %d", blk->get_height(), get_part_decided());
-        if (get_part_decided() < 200000 || get_part_decided() > 204000)
+        if (get_part_decided() < 200000 || get_part_decided() > 200400)
         {
             on_commit(blk);
         }
