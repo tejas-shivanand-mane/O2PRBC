@@ -145,6 +145,8 @@ int main(int argc, char **argv) {
     auto idx = opt_idx->get();
     max_iter_num = opt_max_iter_num->get();
     max_async_num = opt_max_async_num->get();
+
+    HOTSTUFF_LOG_INFO(" max_async_num is %d", int(max_async_num));
     std::vector<std::string> raw;
     for (const auto &s: opt_replicas->get())
     {

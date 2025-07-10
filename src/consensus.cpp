@@ -24,7 +24,7 @@
 #define LOG_INFO HOTSTUFF_LOG_INFO
 #define LOG_DEBUG HOTSTUFF_LOG_DEBUG
 #define LOG_WARN HOTSTUFF_LOG_WARN
-#define LOG_PROTO HOTSTUFF_LOG_PROTO
+#define LOG_PROTO HOTSTUFF_LOG_DEBUG
 
 namespace hotstuff {
 
@@ -370,7 +370,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
         sent_prepares.clear();
 //        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
-        LOG_INFO("blk->get_height(), part_decided is %d, %d", blk->get_height(), get_part_decided());
+        LOG_PROTO("blk->get_height(), part_decided is %d, %d", blk->get_height(), get_part_decided());
         if (2>1)//(get_part_decided() < 40000 || get_part_decided() > 44000)
         {
             on_commit(blk);
