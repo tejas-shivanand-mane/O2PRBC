@@ -667,7 +667,7 @@ void HotStuffBase::do_decide(Finality &&fin) {
 //
 //    }
 
-    HOTSTUFF_LOG_DEBUG("part_decided is %d", part_decided);
+    HOTSTUFF_LOG_INFO("part_decided is %d", part_decided);
     state_machine_execute(fin);
     auto it = decision_waiting.find(fin.cmd_hash);
     if (it != decision_waiting.end())

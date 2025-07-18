@@ -63,6 +63,8 @@ class HotStuffCore {
 
     std::unordered_map<uint32_t, block_t> sent_prepares;
 
+    std::set<uint32_t> issued_blocks;
+
 
 
     block_t get_delivered_blk(const uint256_t &blk_hash);

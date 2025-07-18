@@ -228,6 +228,20 @@ block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds,
     if (parents.empty())
         throw std::runtime_error("empty parents");
     for (const auto &_: parents) tails.erase(_);
+
+
+
+    // [PIPELINED] Allow multiple blocks at same height
+    uint32_t new_height = parents[0]->height + 1;
+    if (issued_blocks.count(new_height))  // [PIPELINED]
+        return nullptr;                   // [PIPELINED]
+    issued_blocks.insert(new_height);     // [PIPELINED]
+
+
+
+
+
+
     /* create the new block */
     block_t bnew = storage->add_blk(
         new Block(parents, cmds,
@@ -263,27 +277,27 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
         sanity_check_delivered(bnew);
         update(bnew);
     }
+
+
+
+    
     bool opinion = false;
-    if (bnew->height > vheight)
-    {
-        if (bnew->qc_ref && bnew->qc_ref->height > b_lock->height)
-        {
-            opinion = true; // liveness condition
-            vheight = bnew->height;
-        }
-        else
-        {   // safety condition (extend the locked branch)
-            block_t b;
-            for (b = bnew;
-                b->height > b_lock->height;
-                b = b->parents[0]);
-            if (b == b_lock) /* on the same branch */
-            {
-                opinion = true;
-                vheight = bnew->height;
-            }
+    if (bnew->qc_ref && bnew->qc_ref->height > b_lock->height) {
+        opinion = true; // liveness condition
+        // [PIPELINED] Removed vheight update
+    } else {
+        block_t b;
+        for (b = bnew; b->height > b_lock->height; b = b->parents[0]);
+        if (b == b_lock) {
+            opinion = true;
+            // [PIPELINED] Removed vheight update
         }
     }
+
+
+
+
+
     LOG_PROTO("now state: %s", std::string(*this).c_str());
     if (!self_prop && bnew->qc_ref)
         on_qc_finish(bnew->qc_ref);
@@ -368,7 +382,11 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 //                          " sent_prepares size: %d",
 //                          blk->get_height(), sent_prepares.size());
 
-        sent_prepares.clear();
+        // [PIPELINED] Do not clear all prepares globally
+        sent_prepares.erase(blk->height);  // [PIPELINED]
+
+
+
 //        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
         LOG_PROTO("blk->get_height(), part_decided is %d, %d", blk->get_height(), get_part_decided());
         if (2>1)//(get_part_decided() < 40000 || get_part_decided() > 44000)
