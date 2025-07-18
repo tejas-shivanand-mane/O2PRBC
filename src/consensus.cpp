@@ -320,10 +320,8 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
 }
 
 
-
 void HotStuffCore::on_receive_prepare(const Prepare &vote) {
     LOG_PROTO("got prepare %s", std::string(vote).c_str());
-//    LOG_PROTO("now state: %s", std::string(*this).c_str());
     block_t blk = get_delivered_blk(vote.blk_hash);
     assert(vote.cert);
     size_t qsize = blk->prepared.size();
@@ -345,85 +343,86 @@ void HotStuffCore::on_receive_prepare(const Prepare &vote) {
         qc->compute();
         update_hqc(blk, qc);
         on_qc_finish(blk);
-        
+
         // <<< PIPELINED CHANGE: 2-chain implicit commit rule
         block_t parent = nullptr;
         if (!blk->parents.empty())
             parent = blk->parents[0];
-        if (parent && parent->self_qc && parent->self_qc->height == parent->height) {
+        if (parent && parent->self_qc &&
+            parent->self_qc->get_obj_hash() == parent->get_hash()) {
             block_t grandparent = nullptr;
             if (!parent->parents.empty())
                 grandparent = parent->parents[0];
-            if (grandparent && grandparent->self_qc && grandparent->self_qc->height == grandparent->height) {
+            if (grandparent && grandparent->self_qc &&
+                grandparent->self_qc->get_obj_hash() == grandparent->get_hash()) {
                 on_commit(grandparent);
             }
         }
         // <<< END PIPELINED CHANGE
-
-
     }
 }
 
 
-// void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
-//             LOG_PROTO("got commit1 %s", std::string(vote).c_str());
-// //            LOG_PROTO("now state: %s", std::string(*this).c_str());
-//     block_t blk = get_delivered_blk(vote.blk_hash);
-//     assert(vote.cert);
-//     size_t qsize = blk->commited1.size();
 
-// //    LOG_PROTO("here on receiving commit1");
-//     if (qsize > config.nmajority) return;
-//     if (!blk->commited1.insert(vote.voter).second)
-//     {
-//         LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
-//         return;
-//     }
+void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
+            LOG_PROTO("got commit1 %s", std::string(vote).c_str());
+//            LOG_PROTO("now state: %s", std::string(*this).c_str());
+    block_t blk = get_delivered_blk(vote.blk_hash);
+    assert(vote.cert);
+    size_t qsize = blk->commited1.size();
 
-//     if (qsize + 1 == config.nreplicas- config.nmajority+1)
-//     {
-//         send_commit1(id,
-//                      Commit1(id, blk->get_hash(),
-//                              create_part_cert(*priv_key, blk->get_hash()), this));
+//    LOG_PROTO("here on receiving commit1");
+    if (qsize > config.nmajority) return;
+    if (!blk->commited1.insert(vote.voter).second)
+    {
+        LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
+        return;
+    }
 
-//     }
+    if (qsize + 1 == config.nreplicas- config.nmajority+1)
+    {
+        send_commit1(id,
+                     Commit1(id, blk->get_hash(),
+                             create_part_cert(*priv_key, blk->get_hash()), this));
 
-//     if (qsize + 1 == config.nmajority)
-//     {
-// //        HOTSTUFF_LOG_INFO("Going to commit due to receiving majority for height %d with"
-// //                          " sent_prepares size: %d",
-// //                          blk->get_height(), sent_prepares.size());
+    }
 
-//         // [PIPELINED] Do not clear all prepares globally
-//         sent_prepares.erase(blk->height);  // [PIPELINED]
+    if (qsize + 1 == config.nmajority)
+    {
+//        HOTSTUFF_LOG_INFO("Going to commit due to receiving majority for height %d with"
+//                          " sent_prepares size: %d",
+//                          blk->get_height(), sent_prepares.size());
 
-
-
-// //        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
-//         LOG_PROTO("blk->get_height(), part_decided is %d, %d", blk->get_height(), get_part_decided());
-//         if (2>1)//(get_part_decided() < 40000 || get_part_decided() > 44000)
-//         {
-//             on_commit(blk);
-//         }
-//         else
-//         {
-//             LOG_INFO("Not commiting due to collection phase");
-//             LOG_INFO("sending collect msg");
-
-// //            for (int i = 0; i < 1; ++i) {
-//                 send_collect(id,
-//                              Collect(id, blk->get_hash(),
-//                                      create_part_cert(*priv_key, blk->get_hash()), this));
-
-// //            }
+        // [PIPELINED] Do not clear all prepares globally
+        sent_prepares.erase(blk->height);  // [PIPELINED]
 
 
-//         }
 
-//     }
+//        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
+        LOG_PROTO("blk->get_height(), part_decided is %d, %d", blk->get_height(), get_part_decided());
+        if (2>1)//(get_part_decided() < 40000 || get_part_decided() > 44000)
+        {
+            on_commit(blk);
+        }
+        else
+        {
+            LOG_INFO("Not commiting due to collection phase");
+            LOG_INFO("sending collect msg");
+
+//            for (int i = 0; i < 1; ++i) {
+                send_collect(id,
+                             Collect(id, blk->get_hash(),
+                                     create_part_cert(*priv_key, blk->get_hash()), this));
+
+//            }
 
 
-// }
+        }
+
+    }
+
+
+}
 
 
 
