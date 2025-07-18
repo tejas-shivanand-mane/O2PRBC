@@ -250,6 +250,8 @@ block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds,
             hqc.first,
             nullptr
         ));
+
+        
     const uint256_t bnew_hash = bnew->get_hash();
     bnew->self_qc = create_quorum_cert(bnew_hash);
     on_deliver_blk(bnew);
