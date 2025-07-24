@@ -126,7 +126,7 @@ class HotStuffCore {
     /** Call to submit new commands to be decided (executed). "Parents" must
      * contain at least one block, and the first block is the actual parent,
      * while the others are uncles/aunts */
-    block_t on_new_view(const std::vector<uint256_t> &cmds,
+    block_t on_new_view(const std::vector<uint256_t> &cmds, const std::vector<int> &keys, const std::vector<int> &vals,
                     const std::vector<block_t> &parents,
                     bytearray_t &&extra = bytearray_t());
 

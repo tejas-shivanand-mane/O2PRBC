@@ -114,8 +114,10 @@ void MsgRespBlock::postponed_parse(HotStuffCore *hsc) {
 }
 
 // TODO: improve this function
-void HotStuffBase::exec_command(uint256_t cmd_hash, commit_cb_t callback) {
-    cmd_pending.enqueue(std::make_pair(cmd_hash, callback));
+void HotStuffBase::exec_command(uint256_t cmd_hash,int key, int val, commit_cb_t callback) {
+
+    cmd_pending.enqueue(std::make_pair(std::make_pair(cmd_hash,std::make_pair(key, val)), callback));
+
 }
 
 void HotStuffBase::on_fetch_blk(const block_t &blk) {
@@ -712,32 +714,52 @@ void HotStuffBase::start(
         ec.dispatch();
 
     cmd_pending.reg_handler(ec, [this](cmd_queue_t &q) {
-        std::pair<uint256_t, commit_cb_t> e;
+        std::pair<std::pair<uint256_t, std::pair<int, int>>, commit_cb_t> e;
         while (q.try_dequeue(e))
         {
+            
+
             ReplicaID proposer = pmaker->get_proposer();
 
-            const auto &cmd_hash = e.first;
+            const auto &cmd_hash = e.first.first;
             auto it = decision_waiting.find(cmd_hash);
             if (it == decision_waiting.end())
                 it = decision_waiting.insert(std::make_pair(cmd_hash, e.second)).first;
             else
                 e.second(Finality(id, 0, 0, 0, cmd_hash, uint256_t()));
+
+            int key = e.first.second.first;
+            int val = e.first.second.second;
+
+
+
             if (proposer != get_id()) continue;
-            cmd_pending_buffer.push(cmd_hash);
+
+
+            cmd_pending_buffer.push(std::make_tuple(cmd_hash, key, val));
+
+
+
             if (cmd_pending_buffer.size() >= blk_size)
             {
                 std::vector<uint256_t> cmds;
+                std::vector<int> keys;
+                std::vector<int> vals;
+                
+                
                 for (uint32_t i = 0; i < blk_size; i++)
                 {
-                    cmds.push_back(cmd_pending_buffer.front());
+                    cmds.push_back(std::get<0>(cmd_pending_buffer.front()));
+                    keys.push_back(std::get<1>(cmd_pending_buffer.front()));
+                    vals.push_back(std::get<2>(cmd_pending_buffer.front()));
+
                     cmd_pending_buffer.pop();
                 }
 
 
-                pmaker->beat().then([this, cmds = std::move(cmds)](ReplicaID proposer) {
+                pmaker->beat().then([this, cmds = std::move(cmds), keys = std::move(keys), vals = std::move(vals)](ReplicaID proposer) {
                     if (proposer == get_id())
-                        on_new_view(cmds, pmaker->get_parents());
+                        on_new_view(cmds, keys, vals, pmaker->get_parents());
                 });
                 return true;
             }

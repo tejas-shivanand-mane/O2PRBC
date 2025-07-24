@@ -63,6 +63,11 @@ struct MsgRespCmd {
 class CommandDummy: public Command {
     uint32_t cid;
     uint32_t n;
+
+    uint32_t key = 0;
+    uint32_t value = 0;
+
+
     uint256_t hash;
 #if HOTSTUFF_CMD_REQSIZE > 0
     uint8_t payload[HOTSTUFF_CMD_REQSIZE];
@@ -75,15 +80,20 @@ class CommandDummy: public Command {
     CommandDummy(uint32_t cid, uint32_t n):
         cid(cid), n(n), hash(salticidae::get_hash(*this)) {}
 
+
+    CommandDummy(uint32_t cid, uint32_t n, uint32_t k, uint32_t val):
+            cid(cid), n(n), key(k), value(val),  hash(salticidae::get_hash(*this)) {}
+
+
     void serialize(DataStream &s) const override {
-        s << cid << n;
+        s << cid << n << key << value;
 #if HOTSTUFF_CMD_REQSIZE > 0
         s.put_data(payload, payload + sizeof(payload));
 #endif
     }
 
     void unserialize(DataStream &s) override {
-        s >> cid >> n;
+        s >> cid >> n >> key >> value;
 #if HOTSTUFF_CMD_REQSIZE > 0
         auto base = s.get_data_inplace(HOTSTUFF_CMD_REQSIZE);
         memmove(payload, base, sizeof(payload));
@@ -95,7 +105,21 @@ class CommandDummy: public Command {
         return hash;
     }
 
-    bool verify() const override {
+    const uint32_t &get_cid() const {
+        return n;
+    }
+
+
+    const uint32_t &get_key() const {
+        return key;
+    }
+
+    const uint32_t &get_val() const {
+        return value;
+    }
+
+
+        bool verify() const override {
         return true;
     }
 };

@@ -340,7 +340,7 @@ void HotStuffApp::client_request_cmd_handler(MsgReqCmd &&msg, const conn_t &conn
     auto cmd = parse_cmd(msg.serialized);
     const auto &cmd_hash = cmd->get_hash();
     HOTSTUFF_LOG_DEBUG("processing %s", std::string(*cmd).c_str());
-    exec_command(cmd_hash, [this, addr](Finality fin) {
+    exec_command(cmd_hash, int(cmd->get_key()), int(cmd->get_val()), [this, addr](Finality fin) {
         resp_queue.enqueue(std::make_pair(fin, addr));
     });
 }

@@ -21,6 +21,14 @@
 #include <signal.h>
 #include <sys/time.h>
 
+
+#include "hotstuff/database.h"
+#include "hotstuff/in_memory_db.cpp"
+#include "hotstuff/helper.h"
+
+
+#define CPU_FREQ 2.2
+
 #include "salticidae/type.h"
 #include "salticidae/netaddr.h"
 #include "salticidae/network.h"
@@ -51,6 +59,15 @@ uint32_t cid;
 uint32_t cnt = 0;
 uint32_t nfaulty;
 
+
+uint32_t table_size =  20000;
+double denom = 0;
+double g_zipf_theta = 0.5;
+double zeta_2_theta;
+uint64_t the_n;
+
+myrand *mrand;
+
 struct Request {
     command_t cmd;
     size_t confirmed;
@@ -66,21 +83,95 @@ std::vector<NetAddr> replicas;
 std::vector<std::pair<struct timeval, double>> elapsed;
 std::unique_ptr<Net> mn;
 
+
+
+
+
+uint64_t zipf(uint64_t n, double theta)
+{
+    assert(this->the_n == n);
+    assert(theta == g_zipf_theta);
+    double alpha = 1 / (1 - theta);
+    double zetan = denom;
+    double eta = (1 - pow(2.0 / n, 1 - theta)) /
+                 (1 - zeta_2_theta / zetan);
+    //	double eta = (1 - pow(2.0 / n, 1 - theta)) /
+    //		(1 - zeta_2_theta / zetan);
+    double u = (double)(mrand->next() % 10000000) / 10000000;
+    double uz = u * zetan;
+    if (uz < 1)
+        return 1;
+    if (uz < 1 + pow(0.5, theta))
+        return 2;
+    return 1 + (uint64_t)(n * pow(eta * u - eta + 1, alpha));
+}
+
+
+uint64_t get_server_clock()
+{
+#if defined(__i386__)
+    uint64_t ret;
+	__asm__ __volatile__("rdtsc"
+						 : "=A"(ret));
+#elif defined(__x86_64__)
+    unsigned hi, lo;
+	__asm__ __volatile__("rdtsc"
+						 : "=a"(lo), "=d"(hi));
+	uint64_t ret = ((uint64_t)lo) | (((uint64_t)hi) << 32);
+	ret = (uint64_t)((double)ret / CPU_FREQ);
+#else
+    timespec *tp = new timespec;
+    clock_gettime(CLOCK_REALTIME, tp);
+    uint64_t ret = tp->tv_sec * 1000000000 + tp->tv_nsec;
+    delete tp;
+#endif
+    return ret;
+}
+
+
+
+
+
+
+
+
+
+
 void connect_all() {
     for (size_t i = 0; i < replicas.size(); i++)
         conns.insert(std::make_pair(i, mn->connect_sync(replicas[i])));
+
+
+    mrand = (myrand *) new myrand();
+
+    mrand->init(get_server_clock());
+
+
+
+    zeta_2_theta = zeta(2, g_zipf_theta);
+    the_n = table_size - 1;
+    denom = zeta(the_n, g_zipf_theta);    
 }
 
 bool try_send(bool check = true) {
     if ((!check || waiting.size() < max_async_num) && max_iter_num)
     {
-        auto cmd = new CommandDummy(cid, cnt++);
+
+
+        int g_zipf_theta = 0.5;
+        int temp_key = zipf(table_size - 1, g_zipf_theta);
+
+        mrand->next();
+        int temp_value = 2;
+
+
+        auto cmd = new CommandDummy(cid, cnt++, temp_key, temp_value);
         MsgReqCmd msg(*cmd);
         for (auto &p: conns) mn->send_msg(msg, p.second);
-#ifndef HOTSTUFF_ENABLE_BENCHMARK
+//#ifndef HOTSTUFF_ENABLE_BENCHMARK
         HOTSTUFF_LOG_INFO("send new cmd %.10s",
                             get_hex(cmd->get_hash()).c_str());
-#endif
+//#endif
         waiting.insert(std::make_pair(
             cmd->get_hash(), Request(cmd)));
         if (max_iter_num > 0)

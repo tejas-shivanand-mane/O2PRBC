@@ -222,7 +222,7 @@ void HotStuffCore::on_commit(const block_t &blk)
 }
 
 
-block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds,
+block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds, const std::vector<int> &keys, const std::vector<int> &vals,
                             const std::vector<block_t> &parents,
                             bytearray_t &&extra) {
     if (parents.empty())
@@ -244,7 +244,7 @@ block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds,
 
     /* create the new block */
     block_t bnew = storage->add_blk(
-        new Block(parents, cmds,
+        new Block(parents, cmds, keys, vals,
             hqc.second->clone(), std::move(extra),
             parents[0]->height + 1,
             hqc.first,

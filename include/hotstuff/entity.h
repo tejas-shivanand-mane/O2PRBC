@@ -97,6 +97,11 @@ class Command: public Serializable {
     public:
     virtual ~Command() = default;
     virtual const uint256_t &get_hash() const = 0;
+
+    virtual const uint32_t &get_cid() const = 0;
+    virtual const uint32_t &get_key() const = 0;
+    virtual const uint32_t &get_val() const = 0;
+
     virtual bool verify() const = 0;
     virtual operator std::string () const {
         DataStream s;
@@ -120,6 +125,10 @@ class Block {
     friend HotStuffCore;
     std::vector<uint256_t> parent_hashes;
     std::vector<uint256_t> cmds;
+
+    std::vector<int> keys;
+    std::vector<int> vals;
+
     quorum_cert_bt qc;
     bytearray_t extra;
 
@@ -174,6 +183,33 @@ class Block {
             delivered(0),
             decision(decision) {}
 
+
+    
+    Block(const std::vector<block_t> &parents,
+          const std::vector<uint256_t> &cmds,
+          const std::vector<int> &keys,
+          const std::vector<int> &vals,
+          quorum_cert_bt &&qc,
+          bytearray_t &&extra,
+          uint32_t height,
+          const block_t &qc_ref,
+          quorum_cert_bt &&self_qc,
+          int8_t decision = 0):
+            parent_hashes(get_hashes(parents)),
+            cmds(cmds),
+            keys(keys),
+            vals(vals),
+            qc(std::move(qc)),
+            extra(std::move(extra)),
+            hash(salticidae::get_hash(*this)),
+            parents(parents),
+            qc_ref(qc_ref),
+            self_qc(std::move(self_qc)),
+            height(height),
+            delivered(0),
+            decision(decision) {}
+
+
     void serialize(DataStream &s) const;
 
     void unserialize(DataStream &s, HotStuffCore *hsc);
@@ -181,6 +217,17 @@ class Block {
     const std::vector<uint256_t> &get_cmds() const {
         return cmds;
     }
+
+
+    const std::vector<int> &get_keys() const {
+        return keys;
+    }
+
+    const std::vector<int> &get_vals() const {
+        return vals;
+    }
+
+
 
     const std::vector<block_t> &get_parents() const {
         return parents;
