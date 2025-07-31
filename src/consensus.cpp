@@ -92,108 +92,52 @@ void HotStuffCore::update_hqc(const block_t &_hqc, const quorum_cert_bt &qc) {
 }
 
 void HotStuffCore::update(const block_t &nblk) {
-//
-//    LOG_PROTO("updating 0");
-//
-//    const block_t &qc_ref = nblk->qc_ref;
-//    if (qc_ref == nullptr)
-//    {
-//        LOG_PROTO("qc_ref == nullptr, returning");
-//        return;
-//    }
-//
-//    // No QC reference, cannot proceed.
-//
-//    // Check if the referenced block is already committed.
-//    if (qc_ref->decision)
-//    {
-//        LOG_PROTO("qc_ref->decision committed, returning");
-//
-//        return;
-//    }
-//
-//    // Update the highest QC if necessary.
-//    update_hqc(qc_ref, nblk->qc);
-//
-//    LOG_PROTO("updating 1");
-//
-//    // Update the locked block if this block is higher than the current locked block.
-//    if (qc_ref->height > b_lock->height) {
-//        b_lock = qc_ref;
-//    }
-//
-//    // Commit only if the block's height is exactly +1 over the last committed block.
-//    if (nblk->height == b_exec->height + 1) {
-//        LOG_PROTO("Committing block: nblk->height, b_exec->height + 1 = %d, %d", nblk->height, b_exec->height + 1);
-//
-//        // Commit the block
-//        // Optionally send a commit message (if required by protocol implementation).
-//        send_commit1(id,
-//                     Commit1(id, nblk->get_hash(),
-//                             create_part_cert(*priv_key, nblk->get_hash()), this));
-//    } else if (nblk->height > b_exec->height + 1) {
-//        LOG_PROTO("Skipping block with height greater than b_exec + 1, %d, %d", nblk->height, b_exec->height + 1);
-//    }
+    /* nblk = b*, blk2 = b'', blk1 = b', blk = b */
+
+   /* three-step HotStuff */
+    const block_t &blk2 = nblk->qc_ref;
+    if (blk2 == nullptr) return;
+    /* decided blk could possible be incomplete due to pruning */
+    if (blk2->decision) return;
+    update_hqc(blk2, nblk->qc);
+
+    const block_t &blk1 = blk2->qc_ref;
+    if (blk1 == nullptr) return;
+    if (blk1->decision) return;
+    if (blk1->height > b_lock->height) b_lock = blk1;
+
+    const block_t &blk = blk1->qc_ref;
+    if (blk == nullptr) return;
+    if (blk->decision) return;
+
+    /* commit requires direct parent */
+    if (blk2->parents[0] != blk1 || blk1->parents[0] != blk) return;
+
+    /* otherwise commit */
+    std::vector<block_t> commit_queue;
+    block_t b;
+    for (b = blk; b->height > b_exec->height; b = b->parents[0])
+    { /* TODO: also commit the uncles/aunts */
+        commit_queue.push_back(b);
+    }
+    if (b != b_exec)
+        throw std::runtime_error("safety breached :( " +
+                                std::string(*blk) + " " +
+                                std::string(*b_exec));
+    for (auto it = commit_queue.rbegin(); it != commit_queue.rend(); it++)
+    {
+        const block_t &blk = *it;
+        blk->decision = 1;
+        do_consensus(blk);
+        LOG_DEBUG("commit %s", std::string(*blk).c_str());
+        for (size_t i = 0; i < blk->cmds.size(); i++)
+            do_decide(Finality(id, 1, i, blk->height,
+                                blk->cmds[i], blk->get_hash()));
+    }
+    b_exec = blk;
 }
 
 
-//void HotStuffCore::update(const block_t &nblk) {
-//
-//    LOG_PROTO("updating 0");
-//
-//    /* nblk = b*, blk2 = b'', blk1 = b', blk = b */
-//#ifndef HOTSTUFF_TWO_STEP
-//    /* three-step HotStuff */
-//    const block_t &blk2 = nblk->qc_ref;
-//    if (blk2 == nullptr) return;
-//    /* decided blk could possible be incomplete due to pruning */
-//    if (blk2->decision) return;
-//    update_hqc(blk2, nblk->qc);
-//
-//
-//    LOG_PROTO("updating 1");
-//
-//    const block_t &blk1 = blk2->qc_ref;
-//    if (blk1 == nullptr) return;
-//    if (blk1->decision) return;
-//    if (blk1->height > b_lock->height) b_lock = blk1;
-//
-//    const block_t &blk = blk1->qc_ref;
-//
-//    LOG_PROTO("updating 2");
-//
-//
-//    if (blk == nullptr) return;
-//    if (blk->decision) return;
-//
-//    /* commit requires direct parent */
-//    if (blk2->parents[0] != blk1 || blk1->parents[0] != blk) return;
-//
-//    LOG_PROTO("updating 3");
-//
-//#else
-//    /* two-step HotStuff */
-//    const block_t &blk1 = nblk->qc_ref;
-//    if (blk1 == nullptr) return;
-//    if (blk1->decision) return;
-//    update_hqc(blk1, nblk->qc);
-//    if (blk1->height > b_lock->height) b_lock = blk1;
-//
-//    const block_t &blk = blk1->qc_ref;
-//    if (blk == nullptr) return;
-//    if (blk->decision) return;
-//
-//    /* commit requires direct parent */
-//    if (blk1->parents[0] != blk) return;
-//#endif
-////    on_commit(blk);
-//
-//    send_commit1(id,
-//                 Commit1(id, blk->get_hash(),
-//                         create_part_cert(*priv_key, blk->get_hash()), this));
-//
-//
-//}
 
 void HotStuffCore::on_commit(const block_t &blk)
 {
@@ -284,18 +228,26 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
 
     
     bool opinion = false;
-    if (bnew->qc_ref && bnew->qc_ref->height > b_lock->height) {
-        opinion = true; // liveness condition
-        // [PIPELINED] Removed vheight update
-    } else {
-        block_t b;
-        for (b = bnew; b->height > b_lock->height; b = b->parents[0]);
-        if (b == b_lock) {
-            opinion = true;
-            // [PIPELINED] Removed vheight update
+    if (bnew->height > vheight)
+    {
+        if (bnew->qc_ref && bnew->qc_ref->height > b_lock->height)
+        {
+            opinion = true; // liveness condition
+            vheight = bnew->height;
+        }
+        else
+        {   // safety condition (extend the locked branch)
+            block_t b;
+            for (b = bnew;
+                b->height > b_lock->height;
+                b = b->parents[0]);
+            if (b == b_lock) /* on the same branch */
+            {
+                opinion = true;
+                vheight = bnew->height;
+            }
         }
     }
-
 
 
 
@@ -343,22 +295,6 @@ void HotStuffCore::on_receive_prepare(const Prepare &vote) {
         qc->compute();
         update_hqc(blk, qc);
         on_qc_finish(blk);
-
-        // <<< PIPELINED CHANGE: 2-chain implicit commit rule
-        block_t parent = nullptr;
-        if (!blk->parents.empty())
-            parent = blk->parents[0];
-        if (parent && parent->self_qc &&
-            parent->self_qc->get_obj_hash() == parent->get_hash()) {
-            block_t grandparent = nullptr;
-            if (!parent->parents.empty())
-                grandparent = parent->parents[0];
-            if (grandparent && grandparent->self_qc &&
-                grandparent->self_qc->get_obj_hash() == grandparent->get_hash()) {
-                on_commit(grandparent);
-            }
-        }
-        // <<< END PIPELINED CHANGE
     }
 }
 

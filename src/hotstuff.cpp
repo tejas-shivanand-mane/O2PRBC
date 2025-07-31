@@ -580,8 +580,18 @@ void HotStuffBase::send_prepare(ReplicaID last_proposer, const Prepare &vote) {
     pmaker->beat_resp(last_proposer)
             .then([this, vote](ReplicaID proposer) {
 
-            pn.multicast_msg(MsgPrepare(vote), peers);
-            on_receive_prepare(vote);
+            if (proposer == get_id()){
+                on_receive_prepare(vote);
+
+            }
+            else
+            {
+                pn.send_msg(MsgPrepare(vote), get_config().get_peer_id(proposer));
+
+            }
+
+
+            // pn.multicast_msg(MsgPrepare(vote), peers);
 
     });
 }
