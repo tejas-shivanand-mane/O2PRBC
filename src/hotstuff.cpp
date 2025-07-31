@@ -548,11 +548,11 @@ HotStuffBase::HotStuffBase(uint32_t blk_size,
     /* register the handlers for msg from replicas */
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::propose_handler, this, _1, _2));
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::prepare_handler, this, _1, _2));
-    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::commit1_handler, this, _1, _2));
-    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::collect_handler, this, _1, _2));
-    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::csend_handler, this, _1, _2));
-    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::echo_handler, this, _1, _2));
-    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::ready_handler, this, _1, _2));
+    // pn.reg_handler(salticidae::generic_bind(&HotStuffBase::commit1_handler, this, _1, _2));
+    // pn.reg_handler(salticidae::generic_bind(&HotStuffBase::collect_handler, this, _1, _2));
+    // pn.reg_handler(salticidae::generic_bind(&HotStuffBase::csend_handler, this, _1, _2));
+    // pn.reg_handler(salticidae::generic_bind(&HotStuffBase::echo_handler, this, _1, _2));
+    // pn.reg_handler(salticidae::generic_bind(&HotStuffBase::ready_handler, this, _1, _2));
 
 
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::req_blk_handler, this, _1, _2));
