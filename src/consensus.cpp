@@ -258,7 +258,7 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
     on_receive_proposal_(prop);
 
 
-    sent_prepares[bnew->height] = bnew;
+    // sent_prepares[bnew->height] = bnew;
 
     if (opinion && !vote_disabled)
     {
