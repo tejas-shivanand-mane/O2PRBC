@@ -175,11 +175,11 @@ block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds, const std:
 
 
 
-    // [PIPELINED] Allow multiple blocks at same height
-    uint32_t new_height = parents[0]->height + 1;
-    if (issued_blocks.count(new_height))  // [PIPELINED]
-        return nullptr;                   // [PIPELINED]
-    issued_blocks.insert(new_height);     // [PIPELINED]
+    // // [PIPELINED] Allow multiple blocks at same height
+    // uint32_t new_height = parents[0]->height + 1;
+    // if (issued_blocks.count(new_height))  // [PIPELINED]
+    //     return nullptr;                   // [PIPELINED]
+    // issued_blocks.insert(new_height);     // [PIPELINED]
 
 
 
