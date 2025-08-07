@@ -24,7 +24,7 @@
 #define LOG_INFO HOTSTUFF_LOG_INFO
 #define LOG_DEBUG HOTSTUFF_LOG_DEBUG
 #define LOG_WARN HOTSTUFF_LOG_WARN
-#define LOG_PROTO HOTSTUFF_LOG_DEBUG
+#define LOG_PROTO HOTSTUFF_LOG_INFO
 
 namespace hotstuff {
 
@@ -94,47 +94,47 @@ void HotStuffCore::update_hqc(const block_t &_hqc, const quorum_cert_bt &qc) {
 void HotStuffCore::update(const block_t &nblk) {
     /* nblk = b*, blk2 = b'', blk1 = b', blk = b */
 
-   /* three-step HotStuff */
-    const block_t &blk2 = nblk->qc_ref;
-    if (blk2 == nullptr) return;
-    /* decided blk could possible be incomplete due to pruning */
-    if (blk2->decision) return;
-    update_hqc(blk2, nblk->qc);
+//    /* three-step HotStuff */
+//     const block_t &blk2 = nblk->qc_ref;
+//     if (blk2 == nullptr) return;
+//     /* decided blk could possible be incomplete due to pruning */
+//     if (blk2->decision) return;
+//     update_hqc(blk2, nblk->qc);
 
-    const block_t &blk1 = blk2->qc_ref;
-    if (blk1 == nullptr) return;
-    if (blk1->decision) return;
-    if (blk1->height > b_lock->height) b_lock = blk1;
+//     const block_t &blk1 = blk2->qc_ref;
+//     if (blk1 == nullptr) return;
+//     if (blk1->decision) return;
+//     if (blk1->height > b_lock->height) b_lock = blk1;
 
-    const block_t &blk = blk1->qc_ref;
-    if (blk == nullptr) return;
-    if (blk->decision) return;
+//     const block_t &blk = blk1->qc_ref;
+//     if (blk == nullptr) return;
+//     if (blk->decision) return;
 
-    /* commit requires direct parent */
-    if (blk2->parents[0] != blk1 || blk1->parents[0] != blk) return;
+//     /* commit requires direct parent */
+//     if (blk2->parents[0] != blk1 || blk1->parents[0] != blk) return;
 
-    /* otherwise commit */
-    std::vector<block_t> commit_queue;
-    block_t b;
-    for (b = blk; b->height > b_exec->height; b = b->parents[0])
-    { /* TODO: also commit the uncles/aunts */
-        commit_queue.push_back(b);
-    }
-    if (b != b_exec)
-        throw std::runtime_error("safety breached :( " +
-                                std::string(*blk) + " " +
-                                std::string(*b_exec));
-    for (auto it = commit_queue.rbegin(); it != commit_queue.rend(); it++)
-    {
-        const block_t &blk = *it;
-        blk->decision = 1;
-        do_consensus(blk);
-        LOG_DEBUG("commit %s", std::string(*blk).c_str());
-        for (size_t i = 0; i < blk->cmds.size(); i++)
-            do_decide(Finality(id, 1, i, blk->height,
-                                blk->cmds[i], blk->get_hash()));
-    }
-    b_exec = blk;
+//     /* otherwise commit */
+//     std::vector<block_t> commit_queue;
+//     block_t b;
+//     for (b = blk; b->height > b_exec->height; b = b->parents[0])
+//     { /* TODO: also commit the uncles/aunts */
+//         commit_queue.push_back(b);
+//     }
+//     if (b != b_exec)
+//         throw std::runtime_error("safety breached :( " +
+//                                 std::string(*blk) + " " +
+//                                 std::string(*b_exec));
+//     for (auto it = commit_queue.rbegin(); it != commit_queue.rend(); it++)
+//     {
+//         const block_t &blk = *it;
+//         blk->decision = 1;
+//         do_consensus(blk);
+//         LOG_DEBUG("commit %s", std::string(*blk).c_str());
+//         for (size_t i = 0; i < blk->cmds.size(); i++)
+//             do_decide(Finality(id, 1, i, blk->height,
+//                                 blk->cmds[i], blk->get_hash()));
+//     }
+//     b_exec = blk;
 }
 
 
@@ -274,6 +274,7 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
 
 void HotStuffCore::on_receive_prepare(const Prepare &vote) {
     LOG_PROTO("got prepare %s", std::string(vote).c_str());
+//    LOG_PROTO("now state: %s", std::string(*this).c_str());
     block_t blk = get_delivered_blk(vote.blk_hash);
     assert(vote.cert);
     size_t qsize = blk->prepared.size();
@@ -295,6 +296,12 @@ void HotStuffCore::on_receive_prepare(const Prepare &vote) {
         qc->compute();
         update_hqc(blk, qc);
         on_qc_finish(blk);
+        LOG_PROTO("Sending commit1");
+        send_commit1(id,
+             Commit1(id, blk->get_hash(),
+                     create_part_cert(*priv_key, blk->get_hash()), this));
+
+
     }
 }
 

@@ -548,7 +548,7 @@ HotStuffBase::HotStuffBase(uint32_t blk_size,
     /* register the handlers for msg from replicas */
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::propose_handler, this, _1, _2));
     pn.reg_handler(salticidae::generic_bind(&HotStuffBase::prepare_handler, this, _1, _2));
-    // pn.reg_handler(salticidae::generic_bind(&HotStuffBase::commit1_handler, this, _1, _2));
+    pn.reg_handler(salticidae::generic_bind(&HotStuffBase::commit1_handler, this, _1, _2));
     // pn.reg_handler(salticidae::generic_bind(&HotStuffBase::collect_handler, this, _1, _2));
     // pn.reg_handler(salticidae::generic_bind(&HotStuffBase::csend_handler, this, _1, _2));
     // pn.reg_handler(salticidae::generic_bind(&HotStuffBase::echo_handler, this, _1, _2));
@@ -580,18 +580,8 @@ void HotStuffBase::send_prepare(ReplicaID last_proposer, const Prepare &vote) {
     pmaker->beat_resp(last_proposer)
             .then([this, vote](ReplicaID proposer) {
 
-            if (proposer == get_id()){
-                on_receive_prepare(vote);
-
-            }
-            else
-            {
-                pn.send_msg(MsgPrepare(vote), get_config().get_peer_id(proposer));
-
-            }
-
-
-            // pn.multicast_msg(MsgPrepare(vote), peers);
+            pn.multicast_msg(MsgPrepare(vote), peers);
+            on_receive_prepare(vote);
 
     });
 }
