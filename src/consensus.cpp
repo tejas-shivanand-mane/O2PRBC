@@ -172,8 +172,8 @@ block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds, const std:
                             bytearray_t &&extra) {
 
 
-    sent_prepare = false;
-//    sent_commit = -1;
+    psent = false;
+    csent = -1;
 
     vstar = parents[0]->height + 1;
     pstar = prop_id;
@@ -264,7 +264,9 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
     on_receive_proposal_(prop);
 
 
-     sent_prepare = true;
+     psent = true;
+
+     ps.insert(int(bnew->get_height()));
 
     if (opinion && !vote_disabled)
     {
@@ -307,9 +309,11 @@ void HotStuffCore::on_receive_prepare(const Prepare &vote) {
              Commit1(id, blk->get_hash(),
                      create_part_cert(*priv_key, blk->get_hash()), this));
 
-        sent_commit = blk->get_height();
+        csent = blk->get_height();
 
-        vpbp = blk->get_height();
+        ps.insert( blk->get_height());
+
+        vp = blk->get_height();
 
     }
 }
@@ -331,7 +335,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         return;
     }
 
-    if (qsize + 1 == config.nreplicas- config.nmajority+1)
+    if (qsize + 1 == config.nreplicas- config.nmajority+1 && int(blk->get_height() ) > vc)
     {
         send_commit1(id,
                      Commit1(id, blk->get_hash(),
@@ -341,8 +345,8 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
     if (qsize + 1 == config.nmajority)
     {
-        LOG_PROTO("vcbc is %d, %d, %d", vcbc, blk->get_height(), int(vcbc< int(blk->get_height())));
-        if (vcbc < int(blk->get_height()))
+        LOG_PROTO("vc is %d, %d, %d", vc, blk->get_height(), int(vc< int(blk->get_height())));
+        if ( (int(blk->get_height())==vstar) && (vc < int(blk->get_height())) )
         {
 
 
@@ -368,8 +372,8 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
             }
 
 
-            vpbp = blk->get_height();
-            vcbc = blk->get_height();
+            vp = blk->get_height();
+            vc = blk->get_height();
         }
 
     }
@@ -405,6 +409,9 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         assert(vote.cert);
         size_t qsize = blk->collected.size();
 
+
+
+
 //    LOG_PROTO("here on receiving commit1");
         if (qsize > config.nmajority) return;
         if (!blk->collected.insert(vote.voter).second)
@@ -418,7 +425,7 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
             HOTSTUFF_LOG_INFO("Sending csend");
 //            blk->collected.clear();
             send_csend(id,
-                         Csend(id, blk->get_hash(),
+                         Csend(id, vp,blk->get_hash(),
                                  create_part_cert(*priv_key, blk->get_hash()), this));
 
         }
@@ -436,24 +443,34 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         assert(vote.cert);
         size_t qsize = blk->csended.size();
 
-//    LOG_PROTO("here on receiving commit1");
-        if (qsize > config.nmajority) return;
-        if (!blk->csended.insert(vote.voter).second)
-        {
-            LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
-            return;
-        }
+        if (esent.count(vote.voter) <= 0 )
 
-        if (qsize == 0)
         {
+
+
+
+//    LOG_PROTO("here on receiving commit1");
+//            if (qsize > config.nmajority) return;
+//            if (!blk->csended.insert(vote.voter).second)
+//            {
+//                LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
+//                return;
+//            }
+
+//            if (qsize == 0)
+            {
 //            blk->csended.clear();
 
-            LOG_INFO("sending echo");
-            send_echo(id,
-                       Echo(id, blk->get_hash(),
-                             create_part_cert(*priv_key, blk->get_hash()), this));
+                LOG_INFO("sending echo");
+                send_echo(id,
+                          Echo(id, vote.voter, vote.vp ,blk->get_hash(),
+                               create_part_cert(*priv_key, blk->get_hash()), this));
+                esent.insert(int(vote.voter));
+
+            }
 
         }
+
 
 
 
@@ -469,6 +486,8 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         assert(vote.cert);
         size_t qsize = blk->echoed.size();
 
+
+
 //    LOG_PROTO("here on receiving commit1");
         if (qsize > config.nmajority) return;
         if (!blk->echoed.insert(vote.voter).second)
@@ -477,15 +496,28 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
             return;
         }
 
-        if (qsize + 1 == config.nmajority)
+        if ( (qsize + 1 == config.nmajority) && (ps.count(vote.vdash) >0) )
         {
 //            blk->echoed.clear();
 
             send_ready(id,
-                      Ready(id, blk->get_hash(),
+                      Ready(0,id, blk->get_hash(),
                            create_part_cert(*priv_key, blk->get_hash()), this));
 
         }
+        else
+        {
+            if (vote.vdash < vp)
+            {
+                send_ready(id,
+                           Ready(1,id, vote.pdash, vote.vdash, blk->get_hash(),
+                                 create_part_cert(*priv_key, blk->get_hash()), this));
+            }
+
+        }
+
+
+        rsent.insert(vote.pdash);
 
 
 
@@ -506,6 +538,8 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         if (qsize > config.nmajority) return;
 
         blk->readyed.insert(vote.voter);
+
+
 //        if (!blk->readyed.insert(vote.voter).second)
 //        {
 //            LOG_WARN("duplicate vote for %s from %d", get_hex10(vote.blk_hash).c_str(), vote.voter);
@@ -516,9 +550,9 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
         if (qsize + 1 == config.nreplicas- config.nmajority+1)
         {
             send_ready(id,
-                         Ready(id, blk->get_hash(),
+                         Ready(0, id, blk->get_hash(), vote.pdash, vote.vdash,
                                  create_part_cert(*priv_key, blk->get_hash()), this));
-
+            rsent.insert(vote.pdash);
         }
 
         if (qsize + 1 == config.nmajority)

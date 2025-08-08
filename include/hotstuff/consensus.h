@@ -61,18 +61,19 @@ class HotStuffCore {
     /** always vote negatively, useful for some PaceMakers */
     bool vote_disabled;
 
-    bool sent_prepare;
-    int sent_commit = -1;
-    int vpbp = -1;
-    int vcbc = -1;
+    bool psent;
+    int csent = -1;
+    int vp = -1;
+    int vc = -1;
     int vstar = -1;
     int pstar = -1;
 
+    std::set<int> ps;
 
     std::set<int> esent;
     std::set<int> rsent;
 
-
+    std::unordered_map<int, int> readies;
     std::set<uint32_t> issued_blocks;
 
 
@@ -455,6 +456,7 @@ struct Commit1: public Serializable {
 /** Abstraction for vote messages. */
     struct Csend: public Serializable {
         ReplicaID voter;
+        int vp;
         /** block being prepared */
         uint256_t blk_hash;
         /** proof of validity for the vote */
@@ -464,7 +466,7 @@ struct Commit1: public Serializable {
         HotStuffCore *hsc;
 
         Csend(): cert(nullptr), hsc(nullptr) {}
-        Csend(ReplicaID voter,
+        Csend(ReplicaID voter, int vp,
                 const uint256_t &blk_hash,
                 part_cert_bt &&cert,
                 HotStuffCore *hsc):
@@ -473,7 +475,7 @@ struct Commit1: public Serializable {
                 cert(std::move(cert)), hsc(hsc) {}
 
         Csend(const Csend &other):
-                voter(other.voter),
+                voter(other.voter), vp(other.vp),
                 blk_hash(other.blk_hash),
                 cert(other.cert ? other.cert->clone() : nullptr),
                 hsc(other.hsc) {}
@@ -481,12 +483,12 @@ struct Commit1: public Serializable {
         Csend(Csend &&other) = default;
 
         void serialize(DataStream &s) const override {
-            s << voter << blk_hash << *cert;
+            s << voter << vp << blk_hash << *cert;
         }
 
         void unserialize(DataStream &s) override {
             assert(hsc != nullptr);
-            s >> voter >> blk_hash;
+            s >> voter >> vp >> blk_hash;
             cert = hsc->parse_part_cert(s);
         }
 
@@ -517,6 +519,10 @@ struct Commit1: public Serializable {
 /** Abstraction for vote messages. */
     struct Echo: public Serializable {
         ReplicaID voter;
+
+        int pdash;
+        int vdash;
+
         /** block being prepared */
         uint256_t blk_hash;
         /** proof of validity for the vote */
@@ -526,7 +532,7 @@ struct Commit1: public Serializable {
         HotStuffCore *hsc;
 
         Echo(): cert(nullptr), hsc(nullptr) {}
-        Echo(ReplicaID voter,
+        Echo(ReplicaID voter, int pdash, int vdash,
                 const uint256_t &blk_hash,
                 part_cert_bt &&cert,
                 HotStuffCore *hsc):
@@ -535,7 +541,7 @@ struct Commit1: public Serializable {
                 cert(std::move(cert)), hsc(hsc) {}
 
         Echo(const Echo &other):
-                voter(other.voter),
+                voter(other.voter), pdash(other.pdash), vdash(other.vdash),
                 blk_hash(other.blk_hash),
                 cert(other.cert ? other.cert->clone() : nullptr),
                 hsc(other.hsc) {}
@@ -543,12 +549,12 @@ struct Commit1: public Serializable {
         Echo(Echo &&other) = default;
 
         void serialize(DataStream &s) const override {
-            s << voter << blk_hash << *cert;
+            s << voter << pdash << vdash << blk_hash << *cert;
         }
 
         void unserialize(DataStream &s) override {
             assert(hsc != nullptr);
-            s >> voter >> blk_hash;
+            s >> voter >> pdash >> vdash >> blk_hash;
             cert = hsc->parse_part_cert(s);
         }
 
@@ -578,39 +584,47 @@ struct Commit1: public Serializable {
 
 /** Abstraction for vote messages. */
     struct Ready: public Serializable {
+
+        int conditional_ready;
+
         ReplicaID voter;
+        int pdash;
+        int vdash;
+
         /** block being prepared */
         uint256_t blk_hash;
         /** proof of validity for the vote */
         part_cert_bt cert;
 
+
         /** handle of the core object to allow polymorphism */
         HotStuffCore *hsc;
 
         Ready(): cert(nullptr), hsc(nullptr) {}
-        Ready(ReplicaID voter,
+        Ready(int cond_ready, ReplicaID voter, int pdash, int vdash,
                 const uint256_t &blk_hash,
                 part_cert_bt &&cert,
                 HotStuffCore *hsc):
                 voter(voter),
                 blk_hash(blk_hash),
-                cert(std::move(cert)), hsc(hsc) {}
+                cert(std::move(cert)), conditional_ready(cond_ready), hsc(hsc) {}
 
         Ready(const Ready &other):
-                voter(other.voter),
+                voter(other.voter), pdash(other.pdash), vdash(other.vdash),
                 blk_hash(other.blk_hash),
+                conditional_ready(other.conditional_ready),
                 cert(other.cert ? other.cert->clone() : nullptr),
                 hsc(other.hsc) {}
 
         Ready(Ready &&other) = default;
 
         void serialize(DataStream &s) const override {
-            s << voter << blk_hash << *cert;
+            s << conditional_ready << voter << pdash << vdash << blk_hash << *cert;
         }
 
         void unserialize(DataStream &s) override {
             assert(hsc != nullptr);
-            s >> voter >> blk_hash;
+            s >> conditional_ready >> voter >> pdash >> vdash >> blk_hash;
             cert = hsc->parse_part_cert(s);
         }
 
