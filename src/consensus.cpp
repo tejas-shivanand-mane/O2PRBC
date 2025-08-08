@@ -163,55 +163,59 @@ void HotStuffCore::on_commit(const block_t &blk)
                                blk->cmds[i], blk->get_hash()));
     }
     b_exec = blk;
+
 }
 
 
-block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds, const std::vector<int> &keys, const std::vector<int> &vals,
+block_t HotStuffCore::on_new_view(const std::vector<uint256_t> &cmds, const std::vector<int> &keys, const std::vector<int> &vals, int prop_id, int sid,
                             const std::vector<block_t> &parents,
                             bytearray_t &&extra) {
-    if (parents.empty())
-        throw std::runtime_error("empty parents");
-    for (const auto &_: parents) tails.erase(_);
+
+
+    sent_prepare = false;
+//    sent_commit = -1;
+
+    vstar = parents[0]->height + 1;
+    pstar = prop_id;
+
+    if (prop_id == sid)
+    {
+
+        if (parents.empty())
+            throw std::runtime_error("empty parents");
+        for (const auto &_: parents) tails.erase(_);
+
+        /* create the new block */
+        block_t bnew = storage->add_blk(
+                new Block(parents, cmds, keys, vals,
+                          hqc.second->clone(), std::move(extra),
+                          parents[0]->height + 1,
+                          hqc.first,
+                          nullptr
+                ));
+
+
+        const uint256_t bnew_hash = bnew->get_hash();
+        bnew->self_qc = create_quorum_cert(bnew_hash);
+        on_deliver_blk(bnew);
+        update(bnew);
 
 
 
-    // // [PIPELINED] Allow multiple blocks at same height
-    // uint32_t new_height = parents[0]->height + 1;
-    // if (issued_blocks.count(new_height))  // [PIPELINED]
-    //     return nullptr;                   // [PIPELINED]
-    // issued_blocks.insert(new_height);     // [PIPELINED]
+        Proposal prop(id, bnew, nullptr);
+        LOG_PROTO("propose %s", std::string(*bnew).c_str());
 
+        LOG_INFO("New view with height: %d and blk height: %d", vheight, bnew->height);
+        if (bnew->height <= vheight)
+            throw std::runtime_error("new block should be higher than vheight");
+        /* self-receive the proposal (no need to send it through the network) */
+        on_receive_proposal(prop);
+        on_propose_(prop);
+        /* boradcast to other replicas */
+        do_broadcast_proposal(prop);
+        return bnew;
+    }
 
-
-
-
-
-    /* create the new block */
-    block_t bnew = storage->add_blk(
-        new Block(parents, cmds, keys, vals,
-            hqc.second->clone(), std::move(extra),
-            parents[0]->height + 1,
-            hqc.first,
-            nullptr
-        ));
-
-        
-    const uint256_t bnew_hash = bnew->get_hash();
-    bnew->self_qc = create_quorum_cert(bnew_hash);
-    on_deliver_blk(bnew);
-    update(bnew);
-    Proposal prop(id, bnew, nullptr);
-    LOG_PROTO("propose %s", std::string(*bnew).c_str());
-
-    LOG_INFO("New view with height: %d and blk height: %d", vheight, bnew->height);
-    if (bnew->height <= vheight)
-        throw std::runtime_error("new block should be higher than vheight");
-    /* self-receive the proposal (no need to send it through the network) */
-    on_receive_proposal(prop);
-    on_propose_(prop);
-    /* boradcast to other replicas */
-    do_broadcast_proposal(prop);
-    return bnew;
 }
 
 void HotStuffCore::on_receive_proposal(const Proposal &prop) {
@@ -237,6 +241,8 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
         }
         else
         {   // safety condition (extend the locked branch)
+
+            LOG_INFO("Safety Condition");
             block_t b;
             for (b = bnew;
                 b->height > b_lock->height;
@@ -253,12 +259,12 @@ void HotStuffCore::on_receive_proposal(const Proposal &prop) {
 
 
     LOG_PROTO("now state: %s", std::string(*this).c_str());
-    if (!self_prop && bnew->qc_ref)
-        on_qc_finish(bnew->qc_ref);
+//    if (!self_prop && bnew->qc_ref)
+//        on_qc_finish(bnew->qc_ref);
     on_receive_proposal_(prop);
 
 
-    // sent_prepares[bnew->height] = bnew;
+     sent_prepare = true;
 
     if (opinion && !vote_disabled)
     {
@@ -295,12 +301,15 @@ void HotStuffCore::on_receive_prepare(const Prepare &vote) {
     {
         qc->compute();
         update_hqc(blk, qc);
-        on_qc_finish(blk);
+//        on_qc_finish(blk);
         LOG_PROTO("Sending commit1");
         send_commit1(id,
              Commit1(id, blk->get_hash(),
                      create_part_cert(*priv_key, blk->get_hash()), this));
 
+        sent_commit = blk->get_height();
+
+        vpbp = blk->get_height();
 
     }
 }
@@ -332,25 +341,21 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 
     if (qsize + 1 == config.nmajority)
     {
-//        HOTSTUFF_LOG_INFO("Going to commit due to receiving majority for height %d with"
-//                          " sent_prepares size: %d",
-//                          blk->get_height(), sent_prepares.size());
-
-        // [PIPELINED] Do not clear all prepares globally
-        sent_prepares.erase(blk->height);  // [PIPELINED]
-
-
-
-//        HOTSTUFF_LOG_INFO("After clearing sent_prepares size: %d", sent_prepares.size());
-        LOG_PROTO("blk->get_height(), part_decided is %d, %d", blk->get_height(), get_part_decided());
-        if (2>1)//(get_part_decided() < 40000 || get_part_decided() > 44000)
+        LOG_PROTO("vcbc is %d, %d, %d", vcbc, blk->get_height(), int(vcbc< int(blk->get_height())));
+        if (vcbc < int(blk->get_height()))
         {
-            on_commit(blk);
-        }
-        else
-        {
-            LOG_INFO("Not commiting due to collection phase");
-            LOG_INFO("sending collect msg");
+
+
+
+            LOG_PROTO("blk->get_height(), part_decided is %d, %d", blk->get_height(), get_part_decided());
+            if (2>1)//(get_part_decided() < 40000 || get_part_decided() > 44000)
+            {
+                on_commit(blk);
+            }
+            else
+            {
+                LOG_INFO("Not commiting due to collection phase");
+                LOG_INFO("sending collect msg");
 
 //            for (int i = 0; i < 1; ++i) {
                 send_collect(id,
@@ -360,9 +365,17 @@ void HotStuffCore::on_receive_commit1(const Commit1 &vote) {
 //            }
 
 
+            }
+
+
+            vpbp = blk->get_height();
+            vcbc = blk->get_height();
         }
 
     }
+//    update_hqc(blk, blk->self_qc);
+    on_qc_finish(blk);
+
 
 
 }
@@ -560,14 +573,21 @@ void HotStuffCore::add_replica(ReplicaID rid, const PeerId &peer_id,
                                 pubkey_bt &&pub_key) {
     config.add_replica(rid,
             ReplicaInfo(rid, peer_id, std::move(pub_key)));
-    b0->prepared.insert(rid);
+    b0->commited1.insert(rid);
 }
 
 promise_t HotStuffCore::async_qc_finish(const block_t &blk) {
-    if (blk->prepared.size() >= config.nmajority)
+    LOG_PROTO("async_qc_finish started ");
+    LOG_PROTO("config.nmajority: %d, %d, %d", blk->get_height(), blk->prepared.size(), config.nmajority);
+    if (blk->commited1.size() >= config.nmajority)
+    {
         return promise_t([](promise_t &pm) {
             pm.resolve();
         });
+
+    }
+
+
     auto it = qc_waiting.find(blk);
     if (it == qc_waiting.end())
         it = qc_waiting.insert(std::make_pair(blk, promise_t())).first;

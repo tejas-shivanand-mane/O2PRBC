@@ -61,7 +61,17 @@ class HotStuffCore {
     /** always vote negatively, useful for some PaceMakers */
     bool vote_disabled;
 
-    std::unordered_map<uint32_t, block_t> sent_prepares;
+    bool sent_prepare;
+    int sent_commit = -1;
+    int vpbp = -1;
+    int vcbc = -1;
+    int vstar = -1;
+    int pstar = -1;
+
+
+    std::set<int> esent;
+    std::set<int> rsent;
+
 
     std::set<uint32_t> issued_blocks;
 
@@ -126,9 +136,8 @@ class HotStuffCore {
     /** Call to submit new commands to be decided (executed). "Parents" must
      * contain at least one block, and the first block is the actual parent,
      * while the others are uncles/aunts */
-    block_t on_new_view(const std::vector<uint256_t> &cmds, const std::vector<int> &keys, const std::vector<int> &vals,
-                    const std::vector<block_t> &parents,
-                    bytearray_t &&extra = bytearray_t());
+    block_t on_new_view(const std::vector<uint256_t> &cmds, const std::vector<int> &keys, const std::vector<int> &vals,int prop_id, int sid,
+                    const std::vector<block_t> &parents, bytearray_t &&extra = bytearray_t());
 
     /* Functions required to construct concrete instances for abstract classes.
      * */

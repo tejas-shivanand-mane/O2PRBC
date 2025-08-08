@@ -142,6 +142,8 @@ class PMWaitQC: public virtual PaceMaker {
     void schedule_next() {
         if (!pending_beats.empty() && !locked)
         {
+
+            HOTSTUFF_LOG_INFO("scheduling next");
             auto pm = pending_beats.front();
             pending_beats.pop();
             pm_qc_finish.reject();
@@ -154,11 +156,17 @@ class PMWaitQC: public virtual PaceMaker {
     }
 
     void update_last_proposed() {
+
+        HOTSTUFF_LOG_INFO("update_last_proposed");
+
         pm_wait_propose.reject();
         (pm_wait_propose = hsc->async_wait_proposal()).then(
                 [this](const Proposal &prop) {
             last_proposed = prop.blk;
             locked = false;
+
+            HOTSTUFF_LOG_INFO("going into schedule_next");
+
             schedule_next();
             update_last_proposed();
         });

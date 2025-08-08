@@ -576,25 +576,17 @@ void HotStuffBase::do_broadcast_proposal(const Proposal &prop) {
     //    pn.send_msg(prop_msg, replica);
 }
 
-void HotStuffBase::send_prepare(ReplicaID last_proposer, const Prepare &vote) {
-    pmaker->beat_resp(last_proposer)
-            .then([this, vote](ReplicaID proposer) {
-
+void HotStuffBase::send_prepare(ReplicaID last_proposer, const Prepare &vote)
+{
             pn.multicast_msg(MsgPrepare(vote), peers);
             on_receive_prepare(vote);
-
-    });
 }
 
 
-void HotStuffBase::send_commit1(ReplicaID last_proposer, const Commit1 &vote) {
-    pmaker->beat_resp(last_proposer)
-            .then([this, vote](ReplicaID proposer) {
-
-                    on_receive_commit1(vote);
-                    pn.multicast_msg(MsgCommit1(vote), peers);
-
-            });
+void HotStuffBase::send_commit1(ReplicaID last_proposer, const Commit1 &vote)
+{
+    on_receive_commit1(vote);
+    pn.multicast_msg(MsgCommit1(vote), peers);
 }
 
 
@@ -606,44 +598,32 @@ int HotStuffBase::get_part_decided() {
 
 
 void HotStuffBase::send_collect(ReplicaID last_proposer, const Collect &vote) {
-    pmaker->beat_resp(last_proposer)
-            .then([this, vote](ReplicaID proposer) {
 
                 on_receive_collect(vote);
                 pn.multicast_msg(MsgCollect(vote), peers);
 
-            });
 }
 
 
 void HotStuffBase::send_csend(ReplicaID last_proposer, const Csend &vote) {
-    pmaker->beat_resp(last_proposer)
-            .then([this, vote](ReplicaID proposer) {
 
                 on_receive_csend(vote);
                 pn.multicast_msg(MsgCsend(vote), peers);
 
-            });
 }
 
 void HotStuffBase::send_echo(ReplicaID last_proposer, const Echo &vote) {
-    pmaker->beat_resp(last_proposer)
-            .then([this, vote](ReplicaID proposer) {
 
                 on_receive_echo(vote);
                 pn.multicast_msg(MsgEcho(vote), peers);
 
-            });
 }
 
 void HotStuffBase::send_ready(ReplicaID last_proposer, const Ready &vote) {
-    pmaker->beat_resp(last_proposer)
-            .then([this, vote](ReplicaID proposer) {
 
                 on_receive_ready(vote);
                 pn.multicast_msg(MsgReady(vote), peers);
 
-            });
 }
 
 
@@ -758,8 +738,8 @@ void HotStuffBase::start(
 
 
                 pmaker->beat().then([this, cmds = std::move(cmds), keys = std::move(keys), vals = std::move(vals)](ReplicaID proposer) {
-                    if (proposer == get_id())
-                        on_new_view(cmds, keys, vals, pmaker->get_parents());
+//                    if (proposer == get_id())
+                        on_new_view(cmds, keys, vals, int(proposer), int(get_id()), pmaker->get_parents());
                 });
                 return true;
             }
